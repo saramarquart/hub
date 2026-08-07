@@ -169,6 +169,12 @@
   object-fit: contain;
 }
 
+/* Dark/monochrome logos (e.g. Personio's black mark) vanish on the dark bg —
+   invert them to white in dark mode only. Light mode leaves them untouched. */
+:global(:root:not([data-theme='light'])) .iconInvertDark {
+  filter: invert(1);
+}
+
 .tileBody {
   display: flex;
   flex-direction: column;

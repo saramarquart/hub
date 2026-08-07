@@ -33,6 +33,7 @@ function Wordmark() {
 export default function Home() {
   return (
     <>
+      <div className="bg-orbs" aria-hidden="true" />
       <ThemeToggle />
       <main className={styles.page}>
         <div className={styles.shell}>
@@ -56,7 +57,7 @@ export default function Home() {
                   <span className={styles.iconBadge} aria-hidden="true">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      className={styles.icon}
+                      className={`${styles.icon}${app.invertOnDark ? ` ${styles.iconInvertDark}` : ''}`}
                       src={app.icon}
                       alt=""
                       width={30}

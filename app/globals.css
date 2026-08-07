@@ -33,6 +33,10 @@
   /* Neutral plate behind full-colour app icons. */
   --icon-plate: rgba(255, 255, 255, 0.04);
   --icon-plate-border: rgba(255, 255, 255, 0.08);
+
+  /* Ambient background orbs — brand violet, dark tuning (kept whisper-subtle). */
+  --orb-1: rgba(66, 32, 160, 0.55);
+  --orb-2: rgba(124, 92, 255, 0.4);
 }
 
 /* Light theme — opt-in via data-theme="light" on <html>. Mirrors paf_note. */
@@ -58,6 +62,10 @@
   --hero-glow: rgba(50, 15, 153, 0.1);
   --icon-plate: rgba(50, 15, 153, 0.04);
   --icon-plate-border: rgba(50, 15, 153, 0.08);
+
+  /* Lighter, quieter orbs on the light background. */
+  --orb-1: rgba(124, 92, 255, 0.16);
+  --orb-2: rgba(157, 134, 255, 0.14);
 }
 
 *,
@@ -103,4 +111,67 @@ a {
   outline: none;
   box-shadow: var(--focus-ring);
   border-radius: var(--r-sm);
+}
+
+/* ---------- Ambient background: two large, soft violet orbs drifting slowly.
+   Pure CSS (transform/opacity only), fixed behind all content, non-interactive.
+   Whisper-subtle — heavy blur + low alpha; motion off for reduced-motion users. */
+.bg-orbs {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.bg-orbs::before,
+.bg-orbs::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  will-change: transform;
+}
+
+.bg-orbs::before {
+  width: 48vw;
+  height: 48vw;
+  left: -10vw;
+  top: -12vw;
+  background: radial-gradient(circle, var(--orb-1), transparent 68%);
+  animation: orb-a 38s ease-in-out infinite alternate;
+}
+
+.bg-orbs::after {
+  width: 42vw;
+  height: 42vw;
+  right: -8vw;
+  bottom: -12vw;
+  background: radial-gradient(circle, var(--orb-2), transparent 68%);
+  animation: orb-b 46s ease-in-out infinite alternate;
+}
+
+@keyframes orb-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(6vw, 5vh, 0) scale(1.12);
+  }
+}
+
+@keyframes orb-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-5vw, -4vh, 0) scale(1.1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-orbs::before,
+  .bg-orbs::after {
+    animation: none;
+  }
 }
