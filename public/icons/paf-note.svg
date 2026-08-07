@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="paf_note">
+  <!-- Planet A tool mark · paf_note · stroke family (2.4) -->
+  <rect width="32" height="32" rx="8" fill="#320F99"/>
+  <!-- Document outline + fold -->
+  <path
+    d="M10 7.25h8.2L23.5 12.5V24a1.25 1.25 0 0 1-1.25 1.25H10A1.25 1.25 0 0 1 8.75 24V8.5A1.25 1.25 0 0 1 10 7.25Z"
+    fill="none"
+    stroke="#FBF9FD"
+    stroke-width="2.4"
+    stroke-linejoin="round"
+  />
+  <path
+    d="M18.2 7.25V12h4.8"
+    fill="none"
+    stroke="#FBF9FD"
+    stroke-width="2.4"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+  <!-- Geometric P -->
+  <path
+    d="M12.4 14.2V23M12.4 14.2h3.4c1.85 0 3 .95 3 2.4s-1.15 2.4-3 2.4h-3.4"
+    fill="none"
+    stroke="#FBF9FD"
+    stroke-width="2.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>
