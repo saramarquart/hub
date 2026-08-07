@@ -77,7 +77,26 @@ export default function Home() {
           </nav>
 
           <footer className={styles.footer}>
-            <span>Planet A Foods · internal</span>
+            <span className={styles.footerLinks}>
+              <a
+                className={styles.footerLink}
+                href="https://note.planet-a-foods.com"
+                rel="noopener"
+              >
+                New here? Start guide
+              </a>
+              <span className={styles.footerDot} aria-hidden="true">
+                ·
+              </span>
+              <a
+                className={styles.footerLink}
+                href="https://slack.com/app_redirect?channel=office-planegg"
+                rel="noopener"
+              >
+                Need help? #office-planegg
+              </a>
+            </span>
+            <span className={styles.footerMuted}>Planet A Foods · internal</span>
           </footer>
         </div>
       </main>

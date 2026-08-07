@@ -21,6 +21,8 @@ export const metadata: Metadata = {
     shortcut: [{ url: '/favicon.ico' }],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
+  manifest: '/manifest.webmanifest',
+  appleWebApp: { capable: true, title: 'PAF Hub', statusBarStyle: 'default' },
 };
 
 export const viewport: Viewport = {
@@ -43,6 +45,13 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html:
               "try{var t=localStorage.getItem('paf-theme');if(t!=='light'&&t!=='dark'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}document.documentElement.setAttribute('data-theme',t);}catch(e){document.documentElement.setAttribute('data-theme','dark');}",
+          }}
+        />
+        {/* Register the service worker so the hub is installable + works offline. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}",
           }}
         />
       </head>
