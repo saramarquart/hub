@@ -1,39 +1,18 @@
 import { apps } from '@/lib/apps';
 import styles from './page.module.css';
 
-/** Planet A Foods wordmark — small inline SVG mark + text, no external assets. */
+/** Planet A Foods wordmark — the official stacked logo, recoloured to brand violet. */
 function Wordmark() {
   return (
     <div className={styles.wordmark}>
-      <svg
-        className={styles.mark}
-        width="34"
-        height="34"
-        viewBox="0 0 34 34"
-        aria-hidden="true"
-        focusable="false"
-      >
-        <rect x="1" y="1" width="32" height="32" rx="9" fill="#320F99" />
-        <circle
-          cx="17"
-          cy="17"
-          r="8.5"
-          fill="none"
-          stroke="#FFFFFF"
-          strokeWidth="2"
-        />
-        <path
-          d="M17 8.5a8.5 8.5 0 0 1 0 17"
-          fill="none"
-          stroke="#C9B8F5"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <circle cx="17" cy="17" r="2.4" fill="#FFFFFF" />
-      </svg>
-      <span className={styles.wordmarkText}>
-        Planet&nbsp;A <strong>Foods</strong>
-      </span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        className={styles.logo}
+        src="/paf-logo.png"
+        alt="Planet A Foods"
+        width={431}
+        height={720}
+      />
     </div>
   );
 }

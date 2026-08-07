@@ -29,20 +29,17 @@
   gap: 10px;
 }
 
-.mark {
+.logo {
   display: block;
-  filter: drop-shadow(0 6px 14px rgba(50, 15, 153, 0.28));
+  width: auto;
+  height: 128px;
+  filter: drop-shadow(0 8px 18px rgba(50, 15, 153, 0.22));
 }
 
-.wordmarkText {
-  font-size: 1.05rem;
-  letter-spacing: 0.01em;
-  color: var(--ink);
-  font-weight: 500;
-}
-
-.wordmarkText strong {
-  font-weight: 700;
+@media (max-width: 560px) {
+  .logo {
+    height: 104px;
+  }
 }
 
 .title {
