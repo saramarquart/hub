@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { AromaIcon, NoteIcon, FeedbackIcon } from './icons';
+import { AromaIcon, NoteIcon, FeedbackIcon, PersonioIcon, SpendeskIcon } from './icons';
 
 export interface AppTile {
   /** Display name of the app. */
@@ -39,5 +39,19 @@ export const apps: AppTile[] = [
     href: 'https://feedback.planet-a-foods.com',
     accent: '#9A4DD9',
     icon: FeedbackIcon(),
+  },
+  {
+    name: 'Personio',
+    description: 'HR, people & payroll.',
+    href: 'https://planetafoods.app.personio.com/',
+    accent: '#0F172A',
+    icon: PersonioIcon(),
+  },
+  {
+    name: 'Spendesk',
+    description: 'Company spend & expense management.',
+    href: 'https://app.spendesk.com/',
+    accent: '#5B4DF0',
+    icon: SpendeskIcon(),
   },
 ];

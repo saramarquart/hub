@@ -48,3 +48,31 @@ export function FeedbackIcon(): ReactNode {
     </svg>
   );
 }
+
+/**
+ * Brand logo icon for a third-party SaaS tile — a self-hosted favicon rendered
+ * full-colour (unlike the monochrome glyphs above, which use currentColor).
+ * `src` is a path under /public. Kept square + rounded to sit in the badge.
+ */
+function BrandLogo({ src, name }: { src: string; name: string }): ReactNode {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={`${name} logo`}
+      width={30}
+      height={30}
+      style={{ display: 'block', borderRadius: 7, objectFit: 'contain' }}
+    />
+  );
+}
+
+/** Personio — HR / people platform (self-hosted brand favicon). */
+export function PersonioIcon(): ReactNode {
+  return <BrandLogo src="/icons/personio.png" name="Personio" />;
+}
+
+/** Spendesk — company spend management (self-hosted brand favicon). */
+export function SpendeskIcon(): ReactNode {
+  return <BrandLogo src="/icons/spendesk.png" name="Spendesk" />;
+}
