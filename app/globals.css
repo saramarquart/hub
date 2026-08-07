@@ -139,7 +139,7 @@ a {
   left: -10vw;
   top: -12vw;
   background: radial-gradient(circle, var(--orb-1), transparent 68%);
-  animation: orb-a 38s ease-in-out infinite alternate;
+  animation: orb-a 22s ease-in-out infinite alternate;
 }
 
 .bg-orbs::after {
@@ -148,24 +148,24 @@ a {
   right: -8vw;
   bottom: -12vw;
   background: radial-gradient(circle, var(--orb-2), transparent 68%);
-  animation: orb-b 46s ease-in-out infinite alternate;
+  animation: orb-b 28s ease-in-out infinite alternate;
 }
 
 @keyframes orb-a {
   from {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(-4vw, -3vh, 0) scale(1);
   }
   to {
-    transform: translate3d(6vw, 5vh, 0) scale(1.12);
+    transform: translate3d(16vw, 11vh, 0) scale(1.22);
   }
 }
 
 @keyframes orb-b {
   from {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(4vw, 3vh, 0) scale(1.05);
   }
   to {
-    transform: translate3d(-5vw, -4vh, 0) scale(1.1);
+    transform: translate3d(-15vw, -10vh, 0) scale(1.18);
   }
 }
 
