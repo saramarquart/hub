@@ -90,10 +90,10 @@ export default function Home() {
               </span>
               <a
                 className={styles.footerLink}
-                href="https://slack.com/app_redirect?channel=office-planegg"
+                href="https://slack.com/app_redirect?channel=help"
                 rel="noopener"
               >
-                Need help? #office-planegg
+                Need help? #help
               </a>
             </span>
             <span className={styles.footerMuted}>Planet A Foods · internal</span>
