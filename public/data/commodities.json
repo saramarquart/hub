@@ -1,0 +1,82 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-08-08T08:45:33.648Z",
+  "note": "Daily snapshot (not intraday). Prices from public keyless endpoints; some values are assumptions — see labels.",
+  "metrics": {
+    "cocoaNY": {
+      "label": "ICE New York cocoa",
+      "value": 5847,
+      "currency": "USD",
+      "unit": "per_tonne",
+      "source": "Yahoo Finance (CC=F, ICE US)",
+      "exchange": "ICE Futures",
+      "fetchedAt": "2026-08-08T08:45:33.647Z",
+      "asOf": "2026-08-07T17:29:56.000Z",
+      "stale": false
+    },
+    "cocoaLondon": {
+      "label": "ICE London cocoa",
+      "value": null,
+      "currency": "GBP",
+      "unit": "per_tonne",
+      "source": "n/a — add source",
+      "exchange": null,
+      "fetchedAt": "2026-08-08T08:44:24.207Z",
+      "asOf": null,
+      "stale": true
+    },
+    "whiteSugar": {
+      "label": "ICE white sugar",
+      "value": null,
+      "currency": "USD",
+      "unit": "per_tonne",
+      "source": "n/a — add source",
+      "exchange": null,
+      "fetchedAt": "2026-08-08T08:44:24.207Z",
+      "asOf": null,
+      "stale": true
+    },
+    "palmKernelOil": {
+      "label": "Palm kernel oil",
+      "value": null,
+      "currency": "USD",
+      "unit": "per_tonne",
+      "source": "n/a — add source",
+      "exchange": null,
+      "fetchedAt": "2026-08-08T08:45:33.648Z",
+      "asOf": null,
+      "stale": true
+    },
+    "eurUsd": {
+      "label": "EUR/USD",
+      "value": 1.1562,
+      "currency": "USD",
+      "unit": "rate",
+      "source": "Yahoo Finance (EURUSD=X)",
+      "exchange": "CCY",
+      "fetchedAt": "2026-08-08T08:45:33.648Z",
+      "asOf": "2026-08-07T21:29:57.000Z",
+      "stale": false
+    },
+    "eurGbp": {
+      "label": "EUR/GBP",
+      "value": 0.8567,
+      "currency": "GBP",
+      "unit": "rate",
+      "source": "Yahoo Finance (EURGBP=X)",
+      "exchange": "CCY",
+      "fetchedAt": "2026-08-08T08:45:33.648Z",
+      "asOf": "2026-08-07T21:29:57.000Z",
+      "stale": false
+    }
+  },
+  "derived": {
+    "cocoaEurPerMt": 5057
+  },
+  "history": [
+    {
+      "date": "2026-08-08",
+      "cocoaEurPerMt": 5057
+    }
+  ]
+}

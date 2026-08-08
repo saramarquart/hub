@@ -1,0 +1,54 @@
+name: Daily commodity prices
+
+# Fetches daily commodity prices (cocoa, FX) from public keyless endpoints and
+# commits public/data/commodities.json, which the static Commodity Tracker page
+# reads at runtime. Runs on a daily cron plus manual dispatch.
+#
+# ── REPO SETTINGS REQUIRED ────────────────────────────────────────────────────
+# This workflow COMMITS back to the repo, so it needs write access:
+#   Settings → Actions → General → Workflow permissions
+#     → "Read and write permissions"  (enables the GITHUB_TOKEN below to push)
+# No secrets/API keys are needed — all data sources are public Yahoo Finance
+# query endpoints. A push to `main` here triggers the existing Pages deploy.
+
+on:
+  schedule:
+    # 06:15 UTC daily — after US/London settlement, before the workday.
+    - cron: '15 6 * * *'
+  workflow_dispatch:
+
+# Grant the job permission to commit the refreshed JSON back to the repo.
+permissions:
+  contents: write
+
+# Never run two price commits at once.
+concurrency:
+  group: commodity-prices
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch commodity prices
+        run: node scripts/fetch-commodities.mjs
+
+      - name: Commit updated prices
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data/commodities.json
+          if git diff --staged --quiet; then
+            echo "No price changes — nothing to commit."
+          else
+            git commit -m "chore(data): daily commodity price snapshot"
+            git push
+          fi
