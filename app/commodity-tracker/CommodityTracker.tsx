@@ -66,6 +66,77 @@ function loadHcco(): HccoPrices {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   Sales Quotes — chocolate/compound prices sales "heard" (localStorage)
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/** Days after which a quote is flagged stale; days after which it auto-archives. */
+const QUOTE_EXPIRE_DAYS = 7;
+const QUOTE_ARCHIVE_DAYS = 30;
+
+const SALES_QUOTES_KEY = 'paf_commodity_sales_quotes_v1';
+
+const QUOTE_PRODUCTS = ['Milk Chocolate', 'Semi-Sweet', 'Compound'] as const;
+type QuoteProduct = (typeof QUOTE_PRODUCTS)[number];
+
+type QuoteUnit = '€/MT' | '€/kg';
+
+interface SalesQuote {
+  id: string;
+  product: QuoteProduct;
+  /** Price as entered, in the entered unit. */
+  price: number;
+  unit: QuoteUnit;
+  note: string;
+  /** ISO timestamp stamped at add time. */
+  loggedAt: string;
+}
+
+function loadSalesQuotes(): SalesQuote[] {
+  if (typeof window === 'undefined') return [];
+  try {
+    const raw = localStorage.getItem(SALES_QUOTES_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    // Defensive: keep only well-formed rows.
+    return parsed.filter(
+      (q): q is SalesQuote =>
+        q &&
+        typeof q.id === 'string' &&
+        (QUOTE_PRODUCTS as readonly string[]).includes(q.product) &&
+        typeof q.price === 'number' &&
+        Number.isFinite(q.price) &&
+        (q.unit === '€/MT' || q.unit === '€/kg') &&
+        typeof q.loggedAt === 'string'
+    ).map((q) => ({ ...q, note: typeof q.note === 'string' ? q.note : '' }));
+  } catch {
+    return [];
+  }
+}
+
+/** Normalize a quote's price into both €/MT and €/kg (1 MT = 1000 kg). */
+function quotePrices(q: SalesQuote): { perMt: number; perKg: number } {
+  if (q.unit === '€/kg') return { perMt: q.price * 1000, perKg: q.price };
+  return { perMt: q.price, perKg: q.price / 1000 };
+}
+
+/** Whole days elapsed since an ISO timestamp (client-side, floored, non-negative). */
+function daysSince(iso: string): number {
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return 0;
+  const ms = Date.now() - then;
+  return Math.max(0, Math.floor(ms / 86_400_000));
+}
+
+/** Human "3d ago" style age. */
+function ageLabel(iso: string): string {
+  const d = daysSince(iso);
+  if (d <= 0) return 'today';
+  if (d === 1) return '1d ago';
+  return `${d}d ago`;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
    Cost Crunch model — recipe types
    ──────────────────────────────────────────────────────────────────────────── */
 
@@ -141,6 +212,67 @@ export default function CommodityTracker() {
       /* ignore */
     }
   };
+
+  /* ── Sales Quotes — sales-heard prices, persisted (localStorage) ────────── */
+  const [quotes, setQuotes] = useState<SalesQuote[]>([]);
+  useEffect(() => setQuotes(loadSalesQuotes()), []);
+
+  const [qProduct, setQProduct] = useState<QuoteProduct>('Milk Chocolate');
+  const [qPrice, setQPrice] = useState('');
+  const [qUnit, setQUnit] = useState<QuoteUnit>('€/MT');
+  const [qNote, setQNote] = useState('');
+  const [showArchive, setShowArchive] = useState(false);
+
+  function persistQuotes(next: SalesQuote[]) {
+    setQuotes(next);
+    try {
+      localStorage.setItem(SALES_QUOTES_KEY, JSON.stringify(next));
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function addQuote() {
+    const price = num(qPrice);
+    if (price == null || price <= 0) return; // don't add a broken quote
+    const quote: SalesQuote = {
+      id:
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      product: qProduct,
+      price,
+      unit: qUnit,
+      note: qNote.trim(),
+      loggedAt: new Date().toISOString(),
+    };
+    persistQuotes([quote, ...quotes]);
+    // Clear the form (keep product + unit for fast repeat entry).
+    setQPrice('');
+    setQNote('');
+  }
+
+  function deleteQuote(id: string) {
+    persistQuotes(quotes.filter((q) => q.id !== id));
+  }
+
+  /* Split into active (<30d, newest first) and archived (≥30d). */
+  const sortedQuotes = useMemo(
+    () => [...quotes].sort((a, b) => b.loggedAt.localeCompare(a.loggedAt)),
+    [quotes]
+  );
+  const activeQuotes = sortedQuotes.filter((q) => daysSince(q.loggedAt) < QUOTE_ARCHIVE_DAYS);
+  const archivedQuotes = sortedQuotes.filter((q) => daysSince(q.loggedAt) >= QUOTE_ARCHIVE_DAYS);
+
+  /* Latest active quote per product for the lean summary line. */
+  const latestByProduct = useMemo(() => {
+    const map = new Map<QuoteProduct, SalesQuote>();
+    for (const q of activeQuotes) {
+      if (!map.has(q.product)) map.set(q.product, q); // activeQuotes already newest-first
+    }
+    return QUOTE_PRODUCTS.map((p) => map.get(p)).filter((q): q is SalesQuote => q != null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quotes]);
 
   /* ── Derived cocoa input prices (HCCO override → else derived ratio) ────── */
   const t = terminalEurMt;
@@ -500,6 +632,202 @@ export default function CommodityTracker() {
             snapshots. Recipe % need not sum to exactly 100 — a warning shows if they’re
             off.
           </p>
+        </section>
+
+        {/* ── Sales Quotes ─────────────────────────────────────────────────── */}
+        <section className={styles.card} aria-labelledby="sq-h">
+          <div className={styles.cardHead}>
+            <h2 id="sq-h" className={styles.cardTitle}>
+              Sales Quotes
+            </h2>
+            <span className={styles.badgeSubtle}>chocolate/compound prices sales heard</span>
+          </div>
+          <p className={styles.note}>
+            Log a price sales <strong>heard</strong> in the market to build a running
+            overview. Every quote shows both €/MT and €/kg. Flagged{' '}
+            <em>expired</em> after {QUOTE_EXPIRE_DAYS} days and auto-archived after{' '}
+            {QUOTE_ARCHIVE_DAYS}. Saved on this device (localStorage).
+          </p>
+
+          {/* Compact entry row */}
+          <div className={styles.quoteForm}>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Product</span>
+              <select
+                className={styles.input}
+                value={qProduct}
+                onChange={(e) => setQProduct(e.target.value as QuoteProduct)}
+              >
+                {QUOTE_PRODUCTS.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Price</span>
+              <input
+                className={styles.input}
+                inputMode="decimal"
+                placeholder="e.g. 8500"
+                value={qPrice}
+                onChange={(e) => setQPrice(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') addQuote();
+                }}
+              />
+            </label>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Unit</span>
+              <select
+                className={styles.input}
+                value={qUnit}
+                onChange={(e) => setQUnit(e.target.value as QuoteUnit)}
+              >
+                <option value="€/MT">€/MT</option>
+                <option value="€/kg">€/kg</option>
+              </select>
+            </label>
+            <label className={styles.field}>
+              <span className={styles.fieldLabel}>Note / source (optional)</span>
+              <input
+                className={styles.input}
+                placeholder="who / where heard"
+                value={qNote}
+                onChange={(e) => setQNote(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') addQuote();
+                }}
+              />
+            </label>
+            <button type="button" className={styles.addBtn} onClick={addQuote}>
+              Add
+            </button>
+          </div>
+
+          {/* Per-product summary (latest active quote each) */}
+          {latestByProduct.length > 0 && (
+            <div className={styles.quoteSummary}>
+              {latestByProduct.map((q) => {
+                const p = quotePrices(q);
+                return (
+                  <span key={q.product} className={styles.quoteSummaryItem}>
+                    {q.product}: <b>{eur(p.perMt)}/MT</b> · {eurKg(p.perKg)}/kg{' '}
+                    <em className={styles.quoteAge}>{ageLabel(q.loggedAt)}</em>
+                  </span>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Active quotes list */}
+          {activeQuotes.length === 0 ? (
+            <p className={styles.muted} style={{ marginTop: 14 }}>
+              No quotes yet — add one above.
+            </p>
+          ) : (
+            <table className={styles.quoteTable}>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th className={styles.numCol}>€/MT</th>
+                  <th className={styles.numCol}>€/kg</th>
+                  <th>Logged</th>
+                  <th>Note</th>
+                  <th aria-label="delete" />
+                </tr>
+              </thead>
+              <tbody>
+                {activeQuotes.map((q) => {
+                  const p = quotePrices(q);
+                  const expired = daysSince(q.loggedAt) >= QUOTE_EXPIRE_DAYS;
+                  return (
+                    <tr key={q.id}>
+                      <td>
+                        {q.product}
+                        {expired && (
+                          <span className={styles.expiredBadge} title="older than 7 days">
+                            expired quote
+                          </span>
+                        )}
+                      </td>
+                      <td className={styles.numCol}>{eur(p.perMt)}</td>
+                      <td className={styles.numCol}>{eurKg(p.perKg)}</td>
+                      <td className={styles.quoteWhen}>
+                        {asOf(q.loggedAt)} <span className={styles.quoteAge}>· {ageLabel(q.loggedAt)}</span>
+                      </td>
+                      <td className={styles.quoteNote}>{q.note || '—'}</td>
+                      <td className={styles.numCol}>
+                        <button
+                          type="button"
+                          className={styles.rowDelete}
+                          onClick={() => deleteQuote(q.id)}
+                          aria-label={`Delete ${q.product} quote`}
+                          title="Delete"
+                        >
+                          ×
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+
+          {/* Archive (auto-archived after 30d; retained, collapsed) */}
+          {archivedQuotes.length > 0 && (
+            <div className={styles.archiveWrap}>
+              <button
+                type="button"
+                className={styles.archiveToggle}
+                onClick={() => setShowArchive((v) => !v)}
+                aria-expanded={showArchive}
+              >
+                {showArchive ? 'Hide' : 'Show'} archived ({archivedQuotes.length})
+              </button>
+              {showArchive && (
+                <table className={styles.quoteTable}>
+                  <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th className={styles.numCol}>€/MT</th>
+                      <th className={styles.numCol}>€/kg</th>
+                      <th>Logged</th>
+                      <th>Note</th>
+                      <th aria-label="delete" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {archivedQuotes.map((q) => {
+                      const p = quotePrices(q);
+                      return (
+                        <tr key={q.id} className={styles.archivedRow}>
+                          <td>{q.product}</td>
+                          <td className={styles.numCol}>{eur(p.perMt)}</td>
+                          <td className={styles.numCol}>{eurKg(p.perKg)}</td>
+                          <td className={styles.quoteWhen}>{asOf(q.loggedAt)}</td>
+                          <td className={styles.quoteNote}>{q.note || '—'}</td>
+                          <td className={styles.numCol}>
+                            <button
+                              type="button"
+                              className={styles.rowDelete}
+                              onClick={() => deleteQuote(q.id)}
+                              aria-label={`Delete archived ${q.product} quote`}
+                              title="Delete"
+                            >
+                              ×
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
         </section>
 
         <footer className={styles.footer}>Planet A Foods · internal</footer>
