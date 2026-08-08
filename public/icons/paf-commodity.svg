@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="paf_commodity">
+  <!-- Planet A tool mark · paf_commodity · stroke family (2.4) -->
+  <rect width="32" height="32" rx="8" fill="#320F99"/>
+  <!-- Euro mark: open C-curve + two crossbars -->
+  <path
+    d="M21.3 10.1a6.6 6.6 0 0 0-4.7-2c-3.6 0-6.4 3.5-6.4 7.9s2.8 7.9 6.4 7.9a6.6 6.6 0 0 0 4.7-2"
+    fill="none"
+    stroke="#FBF9FD"
+    stroke-width="2.4"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <path d="M8.4 14.2h9.2" fill="none" stroke="#FBF9FD" stroke-width="2.4" stroke-linecap="round"/>
+  <path d="M8.4 17.8h9.2" fill="none" stroke="#FBF9FD" stroke-width="2.4" stroke-linecap="round"/>
+</svg>
