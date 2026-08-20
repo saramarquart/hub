@@ -27,5 +27,5 @@ export const apps: AppTile[] = [
   // External — third-party SaaS.
   { name: 'Personio', description: 'HR, people & payroll.', href: 'https://planetafoods.app.personio.com/', icon: '/icons/personio.png', category: 'external', invertOnDark: true },
   { name: 'Spendesk', description: 'Company spend & expense management.', href: 'https://app.spendesk.com/', icon: '/icons/spendesk.png', category: 'external' },
-  { name: 'Qwiki', description: 'How-to guides & screen-recorded knowledge.', href: 'https://forplaneta.qwikinow.de', icon: '/icons/qwiki.svg', category: 'external' },
+  { name: 'Qwiki', description: 'How-to guides & screen-recorded knowledge.', href: 'https://forplaneta.qwikinow.de', icon: '/icons/qwiki.png', category: 'external' },
 ];
