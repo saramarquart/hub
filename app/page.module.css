@@ -3,15 +3,17 @@
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  padding: 56px 24px;
+  /* Compact vertical padding on short screens (13" MBA), roomier on tall ones. */
+  padding: clamp(20px, 4.5vh, 52px) clamp(18px, 4vw, 40px);
 }
 
 .shell {
   width: 100%;
-  max-width: 760px;
+  /* Fluid: a narrow column on a laptop, but grows to use a wide 24" monitor. */
+  max-width: min(1140px, 94vw);
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: clamp(16px, 3vh, 34px);
 }
 
 /* ---------- Theme toggle (fixed upper-right) ---------- */
@@ -58,7 +60,7 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 14px;
+  gap: clamp(6px, 1.3vh, 14px);
 }
 
 .wordmark {
@@ -70,7 +72,7 @@
 .logo {
   display: block;
   width: auto;
-  height: 64px;
+  height: clamp(44px, 7vh, 64px);
   filter: drop-shadow(0 8px 18px rgba(50, 15, 153, 0.22));
 }
 
@@ -119,8 +121,10 @@
 /* ---------- Grid ---------- */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 18px;
+  /* auto-FILL keeps a consistent tile width across the Internal/External groups
+     (the 3-tile group left-aligns instead of stretching to full width). */
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: clamp(12px, 1.3vw, 18px);
 }
 
 /* ---------- Tile ---------- */
@@ -128,8 +132,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px 22px;
+  gap: clamp(10px, 1.5vh, 16px);
+  padding: clamp(15px, 2.4vh, 24px) 22px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -154,8 +158,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 52px;
-  height: 52px;
+  width: clamp(44px, 5.5vh, 52px);
+  height: clamp(44px, 5.5vh, 52px);
   border-radius: 14px;
   background: var(--icon-plate);
   border: 1px solid var(--icon-plate-border);
@@ -289,4 +293,60 @@
   .tile:focus-visible {
     transform: none;
   }
+}
+
+/* ── Grouping + per-user customize (AppGrid) ─────────────────────────────── */
+.customizeBar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2px;
+}
+.customizeBtn {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.customizeBtn:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--panel-2);
+}
+.section {
+  margin-top: clamp(12px, 2.2vh, 20px);
+}
+.section:first-of-type {
+  margin-top: 2px;
+}
+.sectionLabel {
+  margin: 0 0 clamp(8px, 1.2vh, 12px);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+/* A tile rendered as a <button> in customize mode */
+.tileEditing {
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+}
+.tileEditing .open {
+  opacity: 1;
+  transform: none;
+}
+.tileHidden {
+  opacity: 0.45;
+}
+.tileHidden:hover {
+  opacity: 0.72;
 }

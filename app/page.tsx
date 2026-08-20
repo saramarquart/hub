@@ -1,4 +1,4 @@
-import { apps } from '@/lib/apps';
+import AppGrid from './AppGrid';
 import ThemeToggle from './ThemeToggle';
 import styles from './page.module.css';
 
@@ -43,38 +43,7 @@ export default function Home() {
             <p className={styles.tagline}>Pick an app to get started.</p>
           </header>
 
-          <nav aria-label="Planet A Foods apps" className={styles.grid}>
-            {apps.map((app) => {
-              const external = /^https?:\/\//i.test(app.href);
-              return (
-                <a
-                  key={app.name}
-                  href={app.href}
-                  className={styles.tile}
-                  rel={external ? 'noopener' : undefined}
-                  aria-label={`Open ${app.name} — ${app.description}`}
-                >
-                  <span className={styles.iconBadge} aria-hidden="true">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      className={`${styles.icon}${app.invertOnDark ? ` ${styles.iconInvertDark}` : ''}`}
-                      src={app.icon}
-                      alt=""
-                      width={30}
-                      height={30}
-                    />
-                  </span>
-                  <span className={styles.tileBody}>
-                    <span className={styles.tileName}>{app.name}</span>
-                    <span className={styles.tileDesc}>{app.description}</span>
-                  </span>
-                  <span className={styles.open} aria-hidden="true">
-                    Open <span className={styles.arrow}>&rarr;</span>
-                  </span>
-                </a>
-              );
-            })}
-          </nav>
+          <AppGrid />
 
           <footer className={styles.footer}>
             <span className={styles.footerLinks}>
