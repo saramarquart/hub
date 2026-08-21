@@ -8,8 +8,8 @@ static site hosted on **GitHub Pages** at `hub.planet-a-foods.com`.
 
 - Next.js 14 (App Router) + TypeScript, configured for **static export**
   (`output: 'export'`).
-- Plain CSS / CSS Modules. Inter via `next/font` (self-hosted, no external CDN).
-- Light mode only.
+- Plain CSS / CSS Modules. Plus Jakarta Sans via `next/font` (self-hosted, no external CDN).
+- Dark + light mode (sun/moon toggle, upper-right).
 
 ## Adding or removing an app
 
@@ -21,8 +21,9 @@ Add, remove, or reorder an app by editing that one array — nothing else change
   name: 'My App',
   description: 'What it does.',
   href: 'https://myapp.planet-a-foods.com',
-  accent: '#6B3FE0',
-  icon: MyIcon(), // add a glyph in lib/icons.tsx
+  icon: '/icons/my-app.svg',   // a file in public/icons/
+  category: 'internal',        // 'internal' | 'external' — drives the two groups
+  invertOnDark: true,          // optional: invert a dark/monochrome logo in dark mode
 }
 ```
 
