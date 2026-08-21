@@ -22,7 +22,7 @@ export const apps: AppTile[] = [
   { name: 'QOaroma', description: 'R&D aroma & formulation analytics.', href: 'https://analytics.planet-a-foods.com', icon: '/icons/qoaroma.png', category: 'internal' },
   { name: 'paf_note', description: 'Company wiki, notes, spaces, sprints & OKRs.', href: 'https://note.planet-a-foods.com', icon: '/icons/paf-note.svg', category: 'internal' },
   { name: 'paf_feedback', description: 'Team feedback & HR workflows.', href: 'https://feedback.planet-a-foods.com', icon: '/icons/paf-feedback.svg', category: 'internal' },
-  { name: 'paf_commodity', description: 'Cocoa prices, HCCO splits & COGS crunch.', href: 'https://commodity.planet-a-foods.com', icon: '/icons/paf-commodity.svg', category: 'internal' },
+  { name: 'paf_commodity', description: 'Daily cocoa & FX prices + COGS calculator.', href: 'https://commodity.planet-a-foods.com', icon: '/icons/paf-commodity.svg', category: 'internal' },
   { name: 'paf_coa', description: 'Certificate-of-Analysis intake & customer send.', href: 'https://coa.planet-a-foods.com', icon: '/icons/paf-coa.svg', category: 'internal' },
   // External — third-party SaaS.
   { name: 'Personio', description: 'HR, people & payroll.', href: 'https://planetafoods.app.personio.com/', icon: '/icons/personio.png', category: 'external', invertOnDark: true },
