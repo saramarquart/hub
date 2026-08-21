@@ -35,14 +35,19 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   transition:
-    border-color 0.12s ease,
-    background 0.12s ease,
-    transform 0.05s ease;
+    border-color 0.28s var(--ease),
+    background 0.28s var(--ease),
+    color 0.28s var(--ease),
+    transform 0.2s var(--ease);
 }
 
 .themeToggle:hover {
   border-color: var(--border-strong);
   background: var(--panel-2);
+}
+
+.themeToggle:hover svg {
+  transform: rotate(-18deg);
 }
 
 .themeToggle:active {
@@ -52,6 +57,7 @@
 .themeToggle svg {
   width: 18px;
   height: 18px;
+  transition: transform 0.4s var(--ease);
 }
 
 /* ---------- Header ---------- */
@@ -60,20 +66,22 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: clamp(6px, 1.3vh, 14px);
+  gap: clamp(4px, 1vh, 10px);
+  padding-bottom: clamp(2px, 1vh, 8px);
 }
 
 .wordmark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: clamp(4px, 1.2vh, 12px);
 }
 
 .logo {
   display: block;
   width: auto;
-  height: clamp(44px, 7vh, 64px);
-  filter: drop-shadow(0 8px 18px rgba(50, 15, 153, 0.22));
+  height: clamp(52px, 8vh, 74px);
+  filter: drop-shadow(0 10px 26px rgba(50, 15, 153, 0.28));
 }
 
 /* Theme-aware logo swap: light logo for light theme, dark logo for dark. */
@@ -103,19 +111,21 @@
 }
 
 .title {
-  margin: 6px 0 0;
-  font-size: clamp(1.7rem, 4vw, 2.35rem);
-  line-height: 1.1;
-  letter-spacing: -0.025em;
+  margin: 0;
+  font-size: clamp(1.6rem, 3.6vw, 2.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
   font-weight: 700;
   color: var(--text);
+  text-wrap: balance;
 }
 
 .tagline {
   margin: 0;
-  font-size: 1.02rem;
-  font-weight: 500;
+  font-size: clamp(0.98rem, 1.1vw, 1.08rem);
+  font-weight: 450;
   color: var(--muted);
+  letter-spacing: -0.005em;
 }
 
 /* ---------- Grid ---------- */
@@ -123,8 +133,8 @@
   display: grid;
   /* auto-FILL keeps a consistent tile width across the Internal/External groups
      (the 3-tile group left-aligns instead of stretching to full width). */
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: clamp(12px, 1.3vw, 18px);
+  grid-template-columns: repeat(auto-fill, minmax(214px, 1fr));
+  gap: clamp(12px, 1.2vw, 16px);
 }
 
 /* ---------- Tile ---------- */
@@ -132,37 +142,69 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: clamp(10px, 1.5vh, 16px);
-  padding: clamp(15px, 2.4vh, 24px) 22px;
+  gap: clamp(11px, 1.6vh, 15px);
+  padding: clamp(16px, 2.4vh, 22px) clamp(16px, 1.6vw, 20px)
+    clamp(14px, 2vh, 18px);
+  min-height: clamp(148px, 19vh, 176px);
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
+  isolation: isolate;
   transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    border-color 0.18s ease,
-    background 0.18s ease;
+    transform 0.28s var(--ease),
+    box-shadow 0.28s var(--ease),
+    border-color 0.28s var(--ease),
+    background 0.28s var(--ease);
   will-change: transform;
+}
+
+/* Hairline top-edge sheen — a lit, glassy resting state without extra weight. */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, var(--tile-sheen), transparent 42%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .tile:hover,
 .tile:focus-visible {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
   border-color: var(--border-strong);
   background: var(--panel-2);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
 }
 
 .iconBadge {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: clamp(44px, 5.5vh, 52px);
-  height: clamp(44px, 5.5vh, 52px);
-  border-radius: 14px;
+  width: clamp(46px, 5.5vh, 54px);
+  height: clamp(46px, 5.5vh, 54px);
+  border-radius: 15px;
   background: var(--icon-plate);
   border: 1px solid var(--icon-plate-border);
+  box-shadow: inset 0 1px 0 var(--tile-sheen);
+  transition:
+    transform 0.28s var(--ease),
+    border-color 0.28s var(--ease);
+}
+
+.tile:hover .iconBadge,
+.tile:focus-visible .iconBadge {
+  transform: scale(1.06);
+  border-color: var(--border-strong);
 }
 
 .icon {
@@ -182,35 +224,41 @@
 .tileBody {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .tileName {
-  font-size: 1.16rem;
+  font-size: clamp(1.08rem, 1.2vw, 1.16rem);
   font-weight: 650;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
   color: var(--text);
+  line-height: 1.2;
 }
 
 .tileDesc {
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   line-height: 1.45;
   color: var(--muted);
+  text-wrap: pretty;
 }
 
 .open {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   margin-top: auto;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 600;
+  letter-spacing: -0.005em;
   color: var(--brand-light);
-  opacity: 0;
-  transform: translateY(2px);
+  /* Present but quiet at rest; the label sharpens and the arrow advances on
+     hover. Reads as a real affordance instead of an empty tile bottom. */
+  opacity: 0.55;
+  transform: translateY(1px);
   transition:
-    opacity 0.18s ease,
-    transform 0.18s ease;
+    opacity 0.28s var(--ease),
+    transform 0.28s var(--ease),
+    color 0.28s var(--ease);
 }
 
 .tile:hover .open,
@@ -220,12 +268,13 @@
 }
 
 .arrow {
-  transition: transform 0.18s ease;
+  display: inline-block;
+  transition: transform 0.28s var(--ease);
 }
 
 .tile:hover .arrow,
 .tile:focus-visible .arrow {
-  transform: translateX(3px);
+  transform: translateX(4px);
 }
 
 /* ---------- Footer ---------- */
@@ -268,13 +317,27 @@
 
 @media (max-width: 560px) {
   .page {
-    padding: 40px 18px;
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: clamp(1.5rem, 6.6vw, 1.9rem);
+  }
+
+  .customizeHint {
+    display: none;
   }
 
   .grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
 
+  .tile {
+    min-height: 0;
+  }
+
+  /* No hover on touch — surface the affordance fully. */
   .open {
     opacity: 1;
     transform: none;
@@ -285,52 +348,132 @@
   .tile,
   .open,
   .arrow,
-  .themeToggle {
+  .iconBadge,
+  .themeToggle,
+  .customizeBtn,
+  .emptyBtn {
     transition: none;
   }
 
   .tile:hover,
-  .tile:focus-visible {
+  .tile:focus-visible,
+  .tileEditing:hover,
+  .tileEditing:focus-visible {
     transform: none;
+  }
+
+  .tile:hover .iconBadge,
+  .tile:focus-visible .iconBadge {
+    transform: none;
+  }
+
+  .customizeHint {
+    animation: none;
   }
 }
 
 /* ── Grouping + per-user customize (AppGrid) ─────────────────────────────── */
 .customizeBar {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
-  margin-bottom: 2px;
+  gap: 12px;
+  min-height: 34px;
+  margin-bottom: 4px;
+}
+/* A quiet hint that appears while editing, explaining the mode. */
+.customizeHint {
+  margin-right: auto;
+  font-size: 0.84rem;
+  font-weight: 450;
+  color: var(--muted);
+  animation: fade-in 0.28s var(--ease) both;
 }
 .customizeBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   font: inherit;
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--muted);
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  padding: 6px 14px;
   cursor: pointer;
-  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+  transition:
+    color 0.28s var(--ease),
+    border-color 0.28s var(--ease),
+    background 0.28s var(--ease);
 }
 .customizeBtn:hover {
   color: var(--text);
   border-color: var(--border-strong);
   background: var(--panel-2);
 }
+.customizeBtn svg {
+  width: 14px;
+  height: 14px;
+}
+/* Active (editing) state — brand-tinted so "Done" reads as the way out. */
+.customizeBtnActive {
+  color: var(--brand-light);
+  border-color: color-mix(in srgb, var(--brand-light) 45%, var(--border));
+  background: color-mix(in srgb, var(--brand-light) 10%, transparent);
+}
+.customizeBtnActive:hover {
+  color: var(--brand-light);
+  border-color: color-mix(in srgb, var(--brand-light) 60%, var(--border));
+  background: color-mix(in srgb, var(--brand-light) 16%, transparent);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 .section {
-  margin-top: clamp(12px, 2.2vh, 20px);
+  margin-top: clamp(14px, 2.4vh, 22px);
 }
 .section:first-of-type {
   margin-top: 2px;
 }
+/* Section header: label + count + a hairline rule that trails to the edge, so
+   Internal / External read as a calm, intentional hierarchy — not two lists. */
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 clamp(10px, 1.4vh, 14px);
+}
 .sectionLabel {
-  margin: 0 0 clamp(8px, 1.2vh, 12px);
+  margin: 0;
   font-size: 0.72rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--muted);
+  white-space: nowrap;
+}
+.sectionCount {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--faint);
+  font-variant-numeric: tabular-nums;
+}
+.sectionRule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border-strong), transparent);
+  border: 0;
+  margin: 0;
 }
 /* A tile rendered as a <button> in customize mode */
 .tileEditing {
@@ -340,13 +483,90 @@
   cursor: pointer;
   appearance: none;
 }
+/* In edit mode the "Open" affordance becomes the shown/hidden status — keep it
+   fully legible (no hover-reveal) and don't slide the icon around. */
 .tileEditing .open {
   opacity: 1;
   transform: none;
+  color: var(--muted);
 }
+.tileEditing:hover,
+.tileEditing:focus-visible {
+  transform: translateY(-2px);
+}
+.tileEditing:hover .iconBadge,
+.tileEditing:focus-visible .iconBadge {
+  transform: none;
+}
+.tileEditing:hover .arrow,
+.tileEditing:focus-visible .arrow {
+  transform: none;
+}
+/* A "shown" tile in edit mode reads as selected — subtle brand ring. */
+.tileEditing:not(.tileHidden) .open {
+  color: var(--brand-light);
+}
+/* Hidden tile: clearly de-emphasised — desaturated, dashed border, quieted. */
 .tileHidden {
-  opacity: 0.45;
+  opacity: 0.5;
+  background: transparent;
+  border-style: dashed;
+  filter: saturate(0.55);
+  box-shadow: none;
 }
-.tileHidden:hover {
-  opacity: 0.72;
+.tileHidden::before {
+  opacity: 0;
+}
+.tileHidden .open {
+  color: var(--faint);
+}
+.tileHidden:hover,
+.tileHidden:focus-visible {
+  opacity: 0.85;
+  background: var(--panel);
+  filter: saturate(0.85);
+}
+
+/* ---------- Empty states (all apps hidden in a group / everywhere) ---------- */
+.emptyAll {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: clamp(32px, 7vh, 64px) 24px;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+}
+.emptyTitle {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: var(--text);
+}
+.emptyText {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.emptyBtn {
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brand-light);
+  background: color-mix(in srgb, var(--brand-light) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-light) 40%, var(--border));
+  border-radius: var(--r-pill);
+  padding: 7px 16px;
+  cursor: pointer;
+  transition:
+    background 0.28s var(--ease),
+    border-color 0.28s var(--ease);
+}
+.emptyBtn:hover {
+  background: color-mix(in srgb, var(--brand-light) 18%, transparent);
+  border-color: color-mix(in srgb, var(--brand-light) 55%, var(--border));
 }

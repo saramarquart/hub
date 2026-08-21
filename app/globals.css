@@ -26,13 +26,19 @@
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --focus-ring: 0 0 0 3px rgba(124, 92, 255, 0.32);
+  --shadow-lg: 0 20px 44px -12px rgba(0, 0, 0, 0.62);
+  --focus-ring: 0 0 0 3px rgba(124, 92, 255, 0.4);
+
+  /* One shared, calm easing for every transition on the launcher. */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   /* Radial glow behind the hero — brand violet, dark tuning. */
   --hero-glow: rgba(50, 15, 153, 0.28);
   /* Neutral plate behind full-colour app icons. */
-  --icon-plate: rgba(255, 255, 255, 0.04);
-  --icon-plate-border: rgba(255, 255, 255, 0.08);
+  --icon-plate: rgba(255, 255, 255, 0.05);
+  --icon-plate-border: rgba(255, 255, 255, 0.09);
+  /* Hairline top-edge highlight that gives tiles a lit, glassy resting state. */
+  --tile-sheen: rgba(255, 255, 255, 0.06);
 
   /* Ambient background orbs — brand violet, dark tuning (kept whisper-subtle). */
   --orb-1: rgba(66, 32, 160, 0.55);
@@ -57,11 +63,13 @@
 
   --shadow-sm: 0 1px 2px rgba(50, 15, 153, 0.08);
   --shadow-md: 0 8px 24px rgba(50, 15, 153, 0.14);
-  --focus-ring: 0 0 0 3px rgba(124, 92, 255, 0.25);
+  --shadow-lg: 0 22px 46px -14px rgba(50, 15, 153, 0.24);
+  --focus-ring: 0 0 0 3px rgba(124, 92, 255, 0.3);
 
   --hero-glow: rgba(50, 15, 153, 0.1);
-  --icon-plate: rgba(50, 15, 153, 0.04);
-  --icon-plate-border: rgba(50, 15, 153, 0.08);
+  --icon-plate: rgba(50, 15, 153, 0.05);
+  --icon-plate-border: rgba(50, 15, 153, 0.1);
+  --tile-sheen: rgba(255, 255, 255, 0.7);
 
   /* Lighter, quieter orbs on the light background. */
   --orb-1: rgba(124, 92, 255, 0.16);
@@ -96,6 +104,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   min-height: 100dvh;
+  /* Smooth the light/dark swap so the theme toggle feels like a crossfade,
+     not a hard cut. Kept to bg/text only so tiles animate via their own rule. */
+  transition:
+    background-color 0.4s var(--ease),
+    color 0.4s var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
 }
 
 a {
