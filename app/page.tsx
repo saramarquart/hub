@@ -40,7 +40,9 @@ export default function Home() {
           <header className={styles.header}>
             <Wordmark />
             <h1 className={styles.title}>Your Planet&nbsp;A workspace</h1>
-            <p className={styles.tagline}>Pick an app to get started.</p>
+            <p className={styles.tagline}>
+              Every tool the team uses, one click away.
+            </p>
           </header>
 
           <AppGrid />

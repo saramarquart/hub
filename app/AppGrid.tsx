@@ -23,6 +23,8 @@ export default function AppGrid() {
     try {
       const raw = localStorage.getItem(HIDE_KEY);
       if (raw) setHidden(new Set(JSON.parse(raw) as string[]));
+      // Screenshot/QA hook: open in customize mode when this flag is set.
+      if (localStorage.getItem('paf-hub-force-customize') === '1') setEditing(true);
     } catch {
       /* ignore malformed storage */
     }
@@ -42,18 +44,64 @@ export default function AppGrid() {
     });
   }
 
+  // When not editing, a group is only shown if it has at least one visible app.
+  const allHidden =
+    !editing && apps.every((a) => hidden.has(a.name));
+
+  function resetHidden() {
+    setHidden(new Set());
+    try {
+      localStorage.removeItem(HIDE_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+
   return (
     <>
       <div className={styles.customizeBar}>
+        {editing && (
+          <span className={styles.customizeHint}>
+            Tap an app to show or hide it. Your choice is saved on this device.
+          </span>
+        )}
         <button
           type="button"
-          className={styles.customizeBtn}
+          className={`${styles.customizeBtn}${editing ? ` ${styles.customizeBtnActive}` : ''}`}
           onClick={() => setEditing((e) => !e)}
           aria-pressed={editing}
         >
-          {editing ? 'Done' : 'Customize'}
+          {editing ? (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M20 6 9 17l-5-5" />
+              </svg>
+              Done
+            </>
+          ) : (
+            <>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+              </svg>
+              Customize
+            </>
+          )}
         </button>
       </div>
+
+      {allHidden && (
+        <div className={styles.emptyAll} role="status">
+          <h2 className={styles.emptyTitle}>No apps on your hub yet</h2>
+          <p className={styles.emptyText}>
+            You&apos;ve hidden every app. Customize your hub to bring the ones
+            you use back.
+          </p>
+          <button type="button" className={styles.emptyBtn} onClick={resetHidden}>
+            Restore all apps
+          </button>
+        </div>
+      )}
 
       {GROUPS.map((g) => {
         const groupApps = apps.filter(
@@ -62,7 +110,11 @@ export default function AppGrid() {
         if (!groupApps.length) return null;
         return (
           <section key={g.key} className={styles.section}>
-            <h2 className={styles.sectionLabel}>{g.label}</h2>
+            <div className={styles.sectionHead}>
+              <h2 className={styles.sectionLabel}>{g.label}</h2>
+              <span className={styles.sectionCount}>{groupApps.length}</span>
+              <hr className={styles.sectionRule} />
+            </div>
             <div aria-label={`${g.label} apps`} className={styles.grid}>
               {groupApps.map((app) => {
                 const isHidden = hidden.has(app.name);
@@ -84,8 +136,10 @@ export default function AppGrid() {
                       <span className={styles.tileDesc}>{app.description}</span>
                     </span>
                     <span className={styles.open} aria-hidden="true">
-                      {editing ? (isHidden ? 'Hidden' : 'Shown') : 'Open'}{' '}
-                      <span className={styles.arrow}>{editing ? (isHidden ? '+' : '−') : '→'}</span>
+                      {editing ? (isHidden ? 'Show' : 'Hide') : 'Open'}{' '}
+                      <span className={styles.arrow}>
+                        {editing ? (isHidden ? '+' : '×') : '→'}
+                      </span>
                     </span>
                   </>
                 );
