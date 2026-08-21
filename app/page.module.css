@@ -148,7 +148,7 @@
   min-height: clamp(148px, 19vh, 176px);
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--r-xl);
   box-shadow: var(--shadow-sm);
   isolation: isolate;
   transition:
@@ -536,7 +536,7 @@
   text-align: center;
   padding: clamp(32px, 7vh, 64px) 24px;
   border: 1px dashed var(--border-strong);
-  border-radius: var(--radius);
+  border-radius: var(--r-xl);
   background: var(--panel);
   box-shadow: var(--shadow-sm);
 }
