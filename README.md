@@ -44,3 +44,17 @@ export and publishes `./out` to GitHub Pages. The custom domain is configured vi
 assets are served.
 
 > The operator enables Pages ("GitHub Actions" source) and DNS after the first push.
+
+## CI & git hooks
+
+CI runs on every pull request and on push to `main` (`.github/workflows/ci.yml`).
+It runs `npm ci && npm run typecheck && npm run build` (the static export). Deploys to
+GitHub Pages continue to run from `.github/workflows/deploy.yml`.
+
+Optional local pre-commit hook (dependency-free, no husky) — enable once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+It runs `npm run typecheck` on commits that touch TS/JS. Skip with `git commit --no-verify`.
