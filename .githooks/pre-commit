@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# Lightweight pre-commit gate. Opt in once with:
+#   git config core.hooksPath .githooks
+# Runs the repo's own typecheck (tsc --noEmit) so obvious type errors are
+# caught before they can reach a commit / PR / main. Fast and dependency-free
+# (no husky). Scoped to the repo's `typecheck` script, so it won't block on
+# unrelated tooling.
+set -euo pipefail
+
+# Only run when staged changes actually touch source (skip pure docs/asset commits).
+if git diff --cached --name-only --diff-filter=ACM | grep -qE '\.(ts|tsx|js|jsx)$'; then
+  echo "pre-commit: npm run typecheck"
+  npm run typecheck
+fi
