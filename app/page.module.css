@@ -131,10 +131,18 @@
 /* ---------- Grid ---------- */
 .grid {
   display: grid;
-  /* auto-FILL keeps a consistent tile width across the Internal/External groups
-     (the 3-tile group left-aligns instead of stretching to full width). */
-  grid-template-columns: repeat(auto-fill, minmax(214px, 1fr));
+  /* Fixed column counts, not auto-fill: both groups divide evenly by 3
+     (6 internal, 3 external), so a 3-across grid fills every row and never
+     leaves a lone tile stranded at the end of a group. 2 across on small
+     tablets, 1 on phones (see the max-width: 560px block below). */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(12px, 1.2vw, 16px);
+}
+
+@media (min-width: 720px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 /* ---------- Tile ---------- */
