@@ -1,13 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apps, type AppTile } from '@/lib/apps';
+import { type AppTile } from '@/lib/apps';
 import styles from './page.module.css';
 
 /**
  * The app grid, grouped Internal / External, with a per-user "Customize" toggle:
- * each person can hide the apps that aren't relevant to them. The choice is kept
- * in localStorage (this hub is a static site, so it's device-local, no backend).
+ * each person can hide the apps that aren't relevant to them. That choice is
+ * kept in localStorage and stays device-local — it is a preference, not a rule.
+ *
+ * The tiles now arrive as a prop rather than straight from lib/apps.ts, because
+ * the server decides which of them this person sees (lib/visibility.ts). The
+ * localStorage key is still `app.name`: switching it to the new `app.id` would
+ * silently reset everybody's hidden list on the first load after deploy.
  */
 const HIDE_KEY = 'paf-hub-hidden';
 const GROUPS: { key: AppTile['category']; label: string }[] = [
@@ -15,7 +20,7 @@ const GROUPS: { key: AppTile['category']; label: string }[] = [
   { key: 'external', label: 'External' },
 ];
 
-export default function AppGrid() {
+export default function AppGrid({ apps }: { apps: AppTile[] }) {
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState(false);
 

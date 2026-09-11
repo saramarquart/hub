@@ -18,5 +18,11 @@ jobs:
         run: npm ci
       - name: Typecheck
         run: npm run typecheck
-      - name: Build (static export)
+      - name: Test
+        run: npm test
+      # No env is set here on purpose. `next build` must succeed with no secrets
+      # at all — it runs with NODE_ENV=production, and anything that throws at
+      # import time when AUTH_COOKIE_SECRET or DATABASE_URL is missing would
+      # break the build long before it could break a deploy.
+      - name: Build
         run: npm run build
