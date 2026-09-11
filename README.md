@@ -45,6 +45,22 @@ tile is visible to everybody.
 Hiding a tile is **cosmetic**. Every app behind a tile gates itself; a hidden
 tile is a link the launcher does not draw, not a door that is locked.
 
+### Changing it: `/admin`
+
+Admins (`ADMIN_EMAILS`, default `sara@forplaneta.com`) get a **Tile visibility**
+link in the launcher footer. The console lists all nine tiles; each is either
+**Everyone** or restricted to a named list of people. Restrict a tile, add the
+people who should keep it, or hand it back to everyone.
+
+Where a Google Workspace service account with domain-wide delegation is
+configured (`GOOGLE_SERVICE_ACCOUNT_JSON_B64` + `GOOGLE_IMPERSONATE_EMAIL`), the
+"add people" box offers real colleagues from the staff directory. Where it is
+not — which is the current state — the console says so in a sentence and takes a
+typed address instead. **The employee list is never stored in this repo.**
+
+The console says on screen what this feature is: it tidies launchers, it does not
+restrict access.
+
 ## Develop
 
 ```bash
