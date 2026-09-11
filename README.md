@@ -1,13 +1,19 @@
 # paf_hub
 
-A simple, premium launcher page for **Planet A Foods** internal web apps — a clean
-grid of tiles that forward to each app. No authentication, no backend: a fully
-static site hosted on **GitHub Pages** at `hub.planet-a-foods.com`.
+The launcher page for **Planet A Foods** internal web apps — a grid of tiles that
+forward to each app. Sign in with your Planet A Google account and you get the
+tools you have access to.
+
+Live at `hub.planet-a-foods.com`. **While the DNS cutover is pending** that
+hostname is still served by GitHub Pages from the last static build, and the real
+app runs on Railway at `https://web-production-16de.up.railway.app`. See
+[CLAUDE.md](./CLAUDE.md) for the split and the cutover steps.
 
 ## Stack
 
-- Next.js 14 (App Router) + TypeScript, configured for **static export**
-  (`output: 'export'`).
+- Next.js 15 (App Router) + TypeScript. A **server** app — not a static export.
+- Google SSO (authorization-code flow), a signed httpOnly session cookie.
+- Postgres via Drizzle, for tile visibility.
 - Plain CSS / CSS Modules. Plus Jakarta Sans via `next/font` (self-hosted, no external CDN).
 - Dark + light mode (sun/moon toggle, upper-right).
 
@@ -18,6 +24,7 @@ Add, remove, or reorder an app by editing that one array — nothing else change
 
 ```ts
 {
+  id: 'my_app',                // stable; the database references it. Never change it.
   name: 'My App',
   description: 'What it does.',
   href: 'https://myapp.planet-a-foods.com',
@@ -27,29 +34,37 @@ Add, remove, or reorder an app by editing that one array — nothing else change
 }
 ```
 
+## Who sees which tile
+
+**A tile is visible to everyone by default. A restricted tile names who may see it.**
+
+Restrictions live in Postgres as two short exception lists, not as a
+person-by-tile matrix — see `lib/visibility.ts`. With an empty database every
+tile is visible to everybody.
+
+Hiding a tile is **cosmetic**. Every app behind a tile gates itself; a hidden
+tile is a link the launcher does not draw, not a door that is locked.
+
 ## Develop
 
 ```bash
 npm install
-npm run dev        # local dev server
+npm run dev        # local dev server — no config needed, the dev auth bypass mints an identity
 npm run typecheck  # tsc --noEmit
-npm run build      # static export → ./out
+npm test           # vitest
+npm run build      # next build
 ```
 
-## Deploy
-
-Pushing to `main` triggers `.github/workflows/deploy.yml`, which builds the static
-export and publishes `./out` to GitHub Pages. The custom domain is configured via
-`public/CNAME` (`hub.planet-a-foods.com`); `public/.nojekyll` ensures the `_next/`
-assets are served.
-
-> The operator enables Pages ("GitHub Actions" source) and DNS after the first push.
+Copy `.env.example` to `.env.local` to exercise the real Google flow locally.
+**No secret ever goes in this repo** — it is public, and the real values live in
+Railway's environment variables.
 
 ## CI & git hooks
 
-CI runs on every pull request and on push to `main` (`.github/workflows/ci.yml`).
-It runs `npm ci && npm run typecheck && npm run build` (the static export). Deploys to
-GitHub Pages continue to run from `.github/workflows/deploy.yml`.
+CI runs on every pull request and on push to `main`
+(`.github/workflows/ci.yml`): `npm ci && typecheck && test && build`. It runs
+with **no environment at all**, on purpose — nothing may throw at import time
+when `AUTH_COOKIE_SECRET` or `DATABASE_URL` is missing.
 
 Optional local pre-commit hook (dependency-free, no husky) — enable once per clone:
 
