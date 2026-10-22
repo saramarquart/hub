@@ -1,17 +1,31 @@
-name: Deploy to GitHub Pages
+name: Deploy to GitHub Pages (frozen — see below)
 
+# MANUAL ONLY, AND IT WILL NOT SUCCEED AS THINGS STAND.
+#
+# The hub is no longer a static export: `output: 'export'` is gone, so there is
+# no ./out for actions/upload-pages-artifact to publish. This workflow used to
+# run on every push to main; leaving that trigger in place would mean a red X on
+# main forever, which trains everybody to ignore the one place a real failure
+# would show up.
+#
+# WHAT IS SERVING hub.planet-a-foods.com RIGHT NOW: GitHub Pages, still, from
+# the LAST static export it built — a frozen copy, unauthenticated, which is
+# exactly what the whole company has been using all along. It keeps serving
+# that until the DNS cutover. It will not pick up further changes to this repo,
+# because there is nothing static left to build.
+#
+# The new server app lives on Railway. The cutover steps (a CNAME swap plus a
+# custom domain on the Railway service) are in the pull request that made this
+# change. Once DNS points at Railway, DELETE this file, public/CNAME and
+# public/.nojekyll.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
-# Allow the workflow to publish to GitHub Pages.
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow one concurrent deployment; don't cancel an in-progress production deploy.
 concurrency:
   group: pages
   cancel-in-progress: false

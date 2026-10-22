@@ -1,6 +1,16 @@
+import { redirect } from 'next/navigation';
 import AppGrid from './AppGrid';
 import ThemeToggle from './ThemeToggle';
 import styles from './page.module.css';
+import { resolveSession } from '@/lib/auth/server';
+import { visibleAppsFor } from '@/lib/visibility';
+
+/**
+ * Reads the session cookie and the restriction table, so it cannot be
+ * pre-rendered. Without this Next would try to build the grid at compile time,
+ * when there is no request and therefore nobody to build it for.
+ */
+export const dynamic = 'force-dynamic';
 
 /**
  * Planet A Foods wordmark — the official stacked logo. Two <img>s, one per
@@ -30,7 +40,16 @@ function Wordmark() {
   );
 }
 
-export default function Home() {
+export default async function Home() {
+  // middleware.ts already turned anonymous requests away. This is the second
+  // check on purpose: a matcher is one regex away from quietly exempting a
+  // route, and a page that resolves its own session cannot be reached without
+  // one. Fails closed — null means the door, whatever the reason.
+  const session = await resolveSession();
+  if (!session) redirect('/signin');
+
+  const visibleApps = await visibleAppsFor(session.email);
+
   return (
     <>
       <div className="bg-orbs" aria-hidden="true" />
@@ -45,7 +64,7 @@ export default function Home() {
             </p>
           </header>
 
-          <AppGrid />
+          <AppGrid apps={visibleApps} />
 
           <footer className={styles.footer}>
             <span className={styles.footerLinks}>
@@ -66,8 +85,18 @@ export default function Home() {
               >
                 Need help? #help
               </a>
+              <span className={styles.footerDot} aria-hidden="true">
+                ·
+              </span>
+              {/* There is a session now, so there has to be a way out of it —
+                  shared machines in the lab are the case that matters. */}
+              <a className={styles.footerLink} href="/auth/signout">
+                Sign out
+              </a>
             </span>
-            <span className={styles.footerMuted}>Planet A Foods · internal</span>
+            <span className={styles.footerMuted}>
+              {session.email} · Planet A Foods · internal
+            </span>
           </footer>
         </div>
       </main>
