@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="paf_finance">
+  <!-- Planet A tool mark · paf_finance · stroke family (2.4) -->
+  <rect width="32" height="32" rx="8" fill="#320F99"/>
+  <!-- Chart axes -->
+  <path d="M8.4 7.6v15.2a1.2 1.2 0 0 0 1.2 1.2h14"
+        fill="none" stroke="#FBF9FD" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Rising P&L trend line -->
+  <path d="M12.6 19.2l3.6-4 3 2.6 4.4-5.6"
+        fill="none" stroke="#FBF9FD" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Arrowhead -->
+  <path d="M20.4 11.8h3.4v3.4"
+        fill="none" stroke="#FBF9FD" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
