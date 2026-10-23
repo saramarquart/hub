@@ -3,6 +3,7 @@ import AppGrid from './AppGrid';
 import ThemeToggle from './ThemeToggle';
 import styles from './page.module.css';
 import { resolveSession } from '@/lib/auth/server';
+import { isAdmin } from '@/lib/config';
 import { visibleAppsFor } from '@/lib/visibility';
 
 /**
@@ -93,6 +94,21 @@ export default async function Home() {
               <a className={styles.footerLink} href="/auth/signout">
                 Sign out
               </a>
+              {/* Only an admin sees this, and only as a way IN — /admin checks
+                  isAdmin() for itself, and so does every mutation behind it. A
+                  link that appears or disappears is navigation, never a gate.
+                  It goes in the footer because the grid is the front door of the
+                  company and nothing new belongs in it. */}
+              {isAdmin(session.email) && (
+                <>
+                  <span className={styles.footerDot} aria-hidden="true">
+                    ·
+                  </span>
+                  <a className={styles.footerLink} href="/admin">
+                    Tile visibility
+                  </a>
+                </>
+              )}
             </span>
             <span className={styles.footerMuted}>
               {session.email} · Planet A Foods · internal

@@ -60,7 +60,38 @@ Two exception lists in Postgres (`app_restrictions`, `app_restriction_grants`), 
 
 **Hiding a tile is cosmetic, not access control.** Every app the hub links to gates itself; the link still works if you type it, and it is supposed to. Do not write code or copy that implies otherwise. `visibleAppsFor` therefore **fails open** if Postgres is unreachable — a launcher showing an extra tile beats the whole company losing its front door.
 
-There is **no admin UI yet**. `lib/config.ts` has `ADMIN_EMAILS` / `isAdmin()` ready for it.
+### The admin console — `/admin`
+For `ADMIN_EMAILS` only (defaults to `sara@forplaneta.com`). **App-first**: nine tiles listed, each
+either "Everyone" or restricted to a named list. Not person-first — 70 people × 9 tiles would render
+the default as 70 identical screens of ticks and bury the two exceptions among them.
+
+- `app/admin/page.tsx` — the screen. `app/admin/actions.ts` — the only writers of the two tables.
+- **Gate every new mutation with `adminSessionOrNull()` (or `guard()`), server-side.** `middleware.ts`
+  does NOT help here: it admits every `@forplaneta.com` account, which is the whole company. A server
+  action is a POST endpoint addressed by an id that ships in the JS of every signed-in employee.
+  `tests/adminGate.test.ts` fails the build if a new exported action skips the check.
+- **Validate `appId` against `lib/apps.ts` on every write.** `app_restrictions.app_id` has no foreign
+  key (there is no table of apps), so `isKnownAppId()` is the whole constraint. A row for an id that
+  names nothing is inert, silent, and unexplainable six months later.
+- The console **does not** fail open the way the launcher does. If the tables cannot be read it says
+  so instead of drawing nine "Everyone" badges — telling an admin their restrictions vanished is how
+  you get them re-entered on top of rules that were never gone.
+
+### The staff directory — optional, and must stay optional
+`lib/directory.ts` reads Google Workspace live (Admin SDK Directory API,
+`admin.directory.user.readonly`) via a service account with **domain-wide delegation**, same
+credential shape and the same variable names as the feedback app's `web/src/lib/googleCreds.ts`:
+`GOOGLE_SERVICE_ACCOUNT_JSON_B64` + `GOOGLE_IMPERSONATE_EMAIL`.
+
+**Neither is set on the deployment, so the directory is off, and that is the expected state.** The
+scope needs a Workspace super-admin to grant it in a console with no API. `loadDirectory()` therefore
+**never throws**: it returns `{ available: false, reason }` and the console renders the reason as one
+sentence and lets the admin type an address instead. The picker is an `<input list>` pointing at a
+`<datalist>` that is simply empty when the directory is unavailable — that is the whole degradation,
+with no branch to get wrong.
+
+**Never commit the employee list.** No fixture, no seed, no JSON. It lives in Google, in a 5-minute
+in-memory cache, and in Postgres only for people an admin has actually granted a tile.
 
 ## Data / DB
 - **Postgres on Railway**, via Drizzle (`lib/db/`). It holds the two visibility tables **and nothing else** — no employee list, no PII.
@@ -84,4 +115,8 @@ There is **no admin UI yet**. `lib/config.ts` has `ADMIN_EMAILS` / `isAdmin()` r
 - **The tile grid is the front door.** Its markup and `page.module.css` must not drift — a visual regression here is more expensive than a late feature. The sign-in screen is a CSS module precisely so nothing it does can reach the grid.
 - `cookies()` and page `searchParams` are **Promises** in Next 15. `tsc` is what catches a missed `await`, which is why `lint` is `tsc --noEmit`.
 - Behind Railway's proxy `req.url` is `http://localhost:PORT`. Build redirect Locations from `appOrigin()` / `PUBLIC_BASE_URL`, or sign-in bounces the browser to its own machine.
+- **The console works with JavaScript disabled** and should stay that way. The forms are plain
+  `<form action={serverAction}>` posts and the result travels back in the query string, not in a
+  returned value — that is why `app/admin/actions.ts` redirects to `/admin?msg=…` instead of
+  returning a status object.
 - `public/CNAME`, `public/.nojekyll` and `.github/workflows/deploy.yml` are **GitHub Pages leftovers**. Delete all three once DNS points at Railway.

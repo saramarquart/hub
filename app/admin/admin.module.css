@@ -1,0 +1,446 @@
+/* paf_hub — admin console.
+   Its own module, like the sign-in page's, so nothing here can reach the
+   launcher grid. app/page.module.css is the front door of the company and a
+   shared class touched from this file is how a visual regression gets there. */
+
+.page {
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: clamp(20px, 4.5vh, 52px) clamp(18px, 4vw, 40px);
+}
+
+.shell {
+  width: 100%;
+  max-width: min(860px, 94vw);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.4vh, 24px);
+}
+
+/* ---------- Header ---------- */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.back {
+  align-self: flex-start;
+  font-size: 0.85rem;
+  font-weight: 550;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s var(--ease);
+}
+.back:hover {
+  color: var(--text);
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.2vw, 2.1rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tagline {
+  margin: 0;
+  font-size: 0.98rem;
+  color: var(--muted);
+}
+
+/* The "this is cosmetic" sentence. Quiet, not alarming — it is a fact about
+   the feature, not a warning about a problem — but it has a left rule so it
+   reads as a standing note rather than body copy anyone can skim past. */
+.honest {
+  margin: 4px 0 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--panel-2);
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.honest strong {
+  color: var(--text);
+  font-weight: 650;
+}
+
+/* ---------- Banners ---------- */
+.ok,
+.error,
+.warn,
+.info {
+  margin: 0;
+  padding: 11px 14px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.ok {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+.error {
+  border-color: #a3364a;
+  color: #ffb3c0;
+}
+:global(:root[data-theme='light']) .error {
+  color: #98122c;
+}
+.warn {
+  border-color: var(--border-strong);
+}
+.warn p {
+  margin: 0 0 8px;
+}
+.warn p:last-child {
+  margin-bottom: 0;
+}
+.info {
+  border-style: dashed;
+}
+.infoMuted {
+  color: var(--faint);
+}
+
+.warnInline {
+  margin: 8px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* Scoped to .shell: a bare `code` selector in a CSS module is NOT scoped —
+   it would style every <code> on every page in the app. */
+.shell code {
+  font-size: 0.92em;
+  padding: 1px 5px;
+  border-radius: var(--r-sm);
+  background: var(--panel-3);
+  color: var(--text);
+}
+
+/* ---------- Sections ---------- */
+.section {
+  margin-top: clamp(6px, 1.4vh, 12px);
+}
+.sectionHead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+.sectionLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.sectionHint {
+  font-size: 0.78rem;
+  color: var(--faint);
+  white-space: nowrap;
+}
+.sectionRule {
+  flex: 1;
+  height: 1px;
+  border: 0;
+  margin: 0;
+  background: var(--border);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- One tile ---------- */
+.card {
+  padding: 14px 16px;
+  border-radius: var(--r-xl);
+  border: 1px solid var(--border);
+  background: var(--panel);
+  box-shadow: var(--shadow-sm);
+}
+/* A restricted tile is the exception, so it should look like one at a glance
+   down a list of nine. */
+.cardRestricted {
+  border-color: var(--border-strong);
+  background: var(--panel-2);
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.iconBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  background: var(--icon-plate);
+  border: 1px solid var(--icon-plate-border);
+  box-shadow: inset 0 1px 0 var(--tile-sheen);
+}
+.icon {
+  display: block;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+/* Same rule as the launcher: dark marks vanish on the dark background. */
+:global(:root:not([data-theme='light'])) .iconInvertDark {
+  filter: invert(1);
+}
+
+.cardTitle {
+  flex: 1;
+  min-width: 0;
+}
+.appName {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--text);
+}
+.appDesc {
+  margin: 2px 0 0;
+  font-size: 0.83rem;
+  color: var(--faint);
+}
+
+.badge {
+  flex: none;
+  padding: 5px 11px;
+  border-radius: var(--r-pill);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+}
+/* "Everyone" is the default and should look settled, not like an alert. */
+.badgeEveryone {
+  color: var(--muted);
+  background: var(--panel-3);
+}
+.badgeRestricted {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+/* ---------- Forms ---------- */
+.restrictForm,
+.grantForm {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.noteInput,
+.emailInput {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.87rem;
+}
+.noteInput::placeholder,
+.emailInput::placeholder {
+  color: var(--faint);
+}
+.noteInput:focus-visible,
+.emailInput:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: var(--focus-ring);
+}
+
+.primaryBtn,
+.secondaryBtn {
+  flex: none;
+  padding: 9px 16px;
+  border-radius: var(--r-md);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-strong);
+  background: var(--panel-3);
+  color: var(--text);
+  transition:
+    background 0.2s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.primaryBtn {
+  border-color: transparent;
+  background: var(--accent-2);
+  color: #fff;
+}
+.primaryBtn:hover:not(:disabled) {
+  background: var(--brand-light);
+}
+.secondaryBtn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+.primaryBtn:disabled,
+.secondaryBtn:disabled,
+.linkBtn:disabled,
+.removeBtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.linkBtn {
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 550;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.linkBtn:hover:not(:disabled) {
+  color: var(--text);
+}
+
+/* ---------- The people on a restricted tile ---------- */
+.restrictedBody {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.meta {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.meta:empty {
+  display: none;
+}
+.note {
+  color: var(--text);
+}
+.metaMuted {
+  color: var(--faint);
+}
+
+.emptyGrants {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--panel-3);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.emptyGrants strong {
+  color: var(--text);
+}
+
+.people {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.person {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 6px 5px 11px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--panel-3);
+  font-size: 0.82rem;
+  color: var(--text);
+}
+.personName {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.personEmail {
+  font-size: 0.75rem;
+  color: var(--faint);
+}
+.you {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.removeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--faint);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.18s var(--ease),
+    color 0.18s var(--ease);
+}
+.removeBtn:hover:not(:disabled) {
+  background: var(--border-strong);
+  color: var(--text);
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--faint);
+}
+
+@media (max-width: 560px) {
+  .cardHead {
+    flex-wrap: wrap;
+  }
+  .badge {
+    order: 3;
+  }
+}
