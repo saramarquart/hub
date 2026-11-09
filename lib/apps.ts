@@ -28,6 +28,7 @@ export const apps: AppTile[] = [
   { name: 'paf_training', description: 'Mandatory employee training & compliance quizzes.', href: 'https://training.planet-a-foods.com', icon: '/icons/paf-training.svg', category: 'internal' },
   { name: 'paf_finance', description: 'Finance, P&L & reporting.', href: 'https://finance.planet-a-foods.com', icon: '/icons/paf-finance.svg', category: 'internal' },
   { name: 'paf_force', description: 'Sales & partnerships account intelligence.', href: 'https://sales.planet-a-foods.com', icon: '/icons/paf-sales.svg', category: 'internal' },
+  { name: 'paf_supplychain', description: 'Supply chain planning & operations.', href: 'https://supplychain.planet-a-foods.com', icon: '/icons/paf-supplychain.svg', category: 'internal' },
   // External — third-party SaaS.
   { name: 'Personio', description: 'HR, people & payroll.', href: 'https://planetafoods.app.personio.com/', icon: '/icons/personio.png', category: 'external', invertOnDark: true },
   { name: 'Spendesk', description: 'Company spend & expense management.', href: 'https://app.spendesk.com/', icon: '/icons/spendesk.png', category: 'external' },
