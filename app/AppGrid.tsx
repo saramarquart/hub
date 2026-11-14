@@ -1,14 +1,16 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode, type SyntheticEvent } from 'react';
 import { apps, groups, type AppGroup, type AppTile } from '@/lib/apps';
 import styles from './page.module.css';
 
 /**
- * The app grid. Two tiers, one tile style:
- *   For everyone — "Our apps" (internal) and "External tools" rows
- *   Teams        — one row per team group (`group` in lib/apps.ts)
- * On phones the team rows become native <details>, collapsed by default.
+ * The app grid. Sections in order of daily use, one tile style:
+ *   Teams            — one row per team group (`group` in lib/apps.ts)
+ *   Company          — "Our apps" (internal) and "External tools" rows
+ *   People & Culture — used rarely, so last and visually quieter
+ * On phones the team rows and People & Culture become native <details>:
+ * the team rows start open, People & Culture starts collapsed.
  *
  * A per-user "Customize" toggle lets each person hide the apps that aren't
  * relevant to them. The choice is kept in localStorage (this hub is a static
@@ -17,7 +19,7 @@ import styles from './page.module.css';
 const HIDE_KEY = 'paf-hub-hidden';
 /** Matches the 560px phone breakpoint in page.module.css. */
 const PHONE_QUERY = '(max-width: 560px)';
-const TEAM_GROUPS = groups.filter((g) => g.key !== 'everyone');
+const TEAM_GROUPS = groups.filter((g) => g.key !== 'company' && g.key !== 'people-culture');
 const EXTERNAL_LABEL = 'opens external site';
 
 /** Small ↗ after an external app's name. Decorative: the link's accessible name carries the meaning. */
@@ -48,18 +50,37 @@ function useIsPhone() {
 
 interface Row {
   key: string;
-  label: string;
+  /** Omitted when the section heading already names the row. */
+  label?: string;
   apps: AppTile[];
-  /** Team rows collapse on phones; the "For everyone" rows never do. */
-  collapsible: boolean;
+  /** Collapsible on phones (team rows); the Company rows never collapse. */
+  collapsible?: boolean;
+}
+
+interface Section {
+  key: string;
+  label: string;
+  rows: Row[];
+  /** The whole section collapses on phones, starting collapsed. */
+  collapsible?: boolean;
+  /** Rarely used apps: same tile, less visual weight. */
+  quiet?: boolean;
 }
 
 export default function AppGrid() {
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState(false);
   const isPhone = useIsPhone();
-  // Team rows the person has expanded on a phone (all start collapsed).
-  const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  // Phone open/closed choices the person made; anything not in here uses its
+  // default (team rows open, People & Culture collapsed).
+  const [openState, setOpenState] = useState<Record<string, boolean>>({});
+  const isOpen = (key: string, byDefault: boolean) => editing || (openState[key] ?? byDefault);
+  /** onToggle for a <details>: remember the person's choice (not while customize mode forces it open). */
+  const onToggle = (key: string) => (e: SyntheticEvent<HTMLDetailsElement>) => {
+    if (editing) return;
+    const open = e.currentTarget.open;
+    setOpenState((prev) => (prev[key] === open ? prev : { ...prev, [key]: open }));
+  };
 
   useEffect(() => {
     try {
@@ -100,20 +121,32 @@ export default function AppGrid() {
   const shown = (a: AppTile) => editing || !hidden.has(a.name);
   const inGroup = (key: AppGroup) => apps.filter((a) => a.group === key && shown(a));
 
-  const everyone = inGroup('everyone');
-  const everyoneRows: Row[] = [
-    { key: 'our-apps', label: 'Our apps', apps: everyone.filter((a) => a.category === 'internal'), collapsible: false },
-    { key: 'external-tools', label: 'External tools', apps: everyone.filter((a) => a.category === 'external'), collapsible: false },
-  ].filter((r) => r.apps.length);
-  const teamRows: Row[] = TEAM_GROUPS.map((g) => ({
-    key: g.key,
-    label: g.label,
-    apps: inGroup(g.key),
-    collapsible: true,
-  })).filter((r) => r.apps.length);
+  const company = inGroup('company');
+  const sections: Section[] = [
+    {
+      key: 'teams',
+      label: 'Teams',
+      rows: TEAM_GROUPS.map((g) => ({ key: g.key, label: g.label, apps: inGroup(g.key), collapsible: true })),
+    },
+    {
+      key: 'company',
+      label: 'Company',
+      rows: [
+        { key: 'our-apps', label: 'Our apps', apps: company.filter((a) => a.category === 'internal') },
+        { key: 'external-tools', label: 'External tools', apps: company.filter((a) => a.category === 'external') },
+      ],
+    },
+    {
+      key: 'people-culture',
+      label: 'People & Culture',
+      rows: [{ key: 'people-culture-apps', apps: inGroup('people-culture') }],
+      collapsible: true,
+      quiet: true,
+    },
+  ];
 
   /** A tile is a link normally, and a show/hide toggle button in customize mode. */
-  function renderTile(app: AppTile) {
+  function renderTile(app: AppTile, quiet = false) {
     const isHidden = hidden.has(app.name);
     const isExternal = app.category === 'external';
     const inner = (
@@ -150,7 +183,7 @@ export default function AppGrid() {
           onClick={() => toggle(app.name)}
           aria-pressed={!isHidden}
           aria-label={app.name}
-          className={`${styles.tile} ${styles.tileEditing}${isHidden ? ` ${styles.tileHidden}` : ''}`}
+          className={`${styles.tile}${quiet ? ` ${styles.tileQuiet}` : ''} ${styles.tileEditing}${isHidden ? ` ${styles.tileHidden}` : ''}`}
         >
           {inner}
         </button>
@@ -160,7 +193,7 @@ export default function AppGrid() {
       <a
         key={app.name}
         href={app.href}
-        className={styles.tile}
+        className={`${styles.tile}${quiet ? ` ${styles.tileQuiet}` : ''}`}
         rel="noopener"
         aria-label={`Open ${app.name} — ${app.description}${isExternal ? ` (${EXTERNAL_LABEL})` : ''}`}
       >
@@ -169,55 +202,66 @@ export default function AppGrid() {
     );
   }
 
-  function renderRow(row: Row) {
-    const tiles = <div className={styles.tiles}>{row.apps.map(renderTile)}</div>;
-    if (row.collapsible && isPhone) {
+  const chevron = (
+    <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+
+  function renderRow(row: Row, quiet: boolean) {
+    const tiles = <div className={styles.tiles}>{row.apps.map((a) => renderTile(a, quiet))}</div>;
+    if (row.collapsible && row.label && isPhone) {
       return (
-        <details
-          key={row.key}
-          className={styles.row}
-          // Customize mode shows every row so each app can be toggled.
-          open={editing || expanded.has(row.key)}
-          onToggle={(e) => {
-            if (editing) return;
-            const isOpen = e.currentTarget.open;
-            setExpanded((prev) => {
-              const next = new Set(prev);
-              if (isOpen) next.add(row.key);
-              else next.delete(row.key);
-              return next;
-            });
-          }}
-        >
+        <details key={row.key} className={styles.row} open={isOpen(row.key, true)} onToggle={onToggle(row.key)}>
           <summary className={styles.rowSummary}>
             <h3 className={styles.rowLabel}>{row.label}</h3>
-            <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="m6 9 6 6 6-6" />
-            </svg>
+            {chevron}
           </summary>
           {tiles}
         </details>
       );
     }
     return (
-      <div key={row.key} className={styles.row}>
-        <h3 className={styles.rowLabel}>{row.label}</h3>
+      <div key={row.key} className={`${styles.row}${row.label ? '' : ` ${styles.rowNoLabel}`}`}>
+        {row.label && <h3 className={styles.rowLabel}>{row.label}</h3>}
         {tiles}
       </div>
     );
   }
 
-  function renderSection(id: string, label: string, rows: Row[]): ReactNode {
+  function renderSection(section: Section): ReactNode {
+    const rows = section.rows.filter((r) => r.apps.length);
     if (!rows.length) return null;
+    const id = `group-${section.key}`;
+    const heading = (
+      <h2 id={id} className={styles.sectionLabel}>
+        {section.label}
+      </h2>
+    );
+    const rule = <hr className={styles.sectionRule} />;
+    const body = <div className={styles.rows}>{rows.map((r) => renderRow(r, !!section.quiet))}</div>;
+    const className = `${styles.section}${section.quiet ? ` ${styles.sectionQuiet}` : ''}`;
+    if (section.collapsible && isPhone) {
+      return (
+        <section key={section.key} className={className} aria-labelledby={id}>
+          <details open={isOpen(section.key, false)} onToggle={onToggle(section.key)}>
+            <summary className={`${styles.sectionHead} ${styles.sectionSummary}`}>
+              {heading}
+              {chevron}
+              {rule}
+            </summary>
+            {body}
+          </details>
+        </section>
+      );
+    }
     return (
-      <section className={styles.section} aria-labelledby={id}>
+      <section key={section.key} className={className} aria-labelledby={id}>
         <div className={styles.sectionHead}>
-          <h2 id={id} className={styles.sectionLabel}>
-            {label}
-          </h2>
-          <hr className={styles.sectionRule} />
+          {heading}
+          {rule}
         </div>
-        <div className={styles.rows}>{rows.map(renderRow)}</div>
+        {body}
       </section>
     );
   }
@@ -268,8 +312,7 @@ export default function AppGrid() {
         </div>
       )}
 
-      {renderSection('group-everyone', 'For everyone', everyoneRows)}
-      {renderSection('group-teams', 'Teams', teamRows)}
+      {sections.map(renderSection)}
     </>
   );
 }

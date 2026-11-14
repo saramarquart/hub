@@ -22,8 +22,9 @@ Add, remove, or reorder an app by editing that one array — nothing else change
   description: 'What it does.',
   href: 'https://myapp.planet-a-foods.com',
   icon: '/icons/my-app.svg',   // a file in public/icons/
-  category: 'internal',        // 'internal' | 'external' — splits "For everyone" into Our apps / External tools; external apps get a ↗
-  group: 'everyone',           // 'everyone' (large tile) | 'rnd-procurement' | 'operations-quality' | 'sales-finance' (compact tiles under "Teams")
+  category: 'internal',        // 'internal' | 'external' — splits "Company" into Our apps / External tools; external apps get a ↗
+  group: 'rnd-procurement',    // 'rnd-procurement' | 'operations-quality' | 'sales-finance' (rows under "Teams", shown first)
+                               // | 'company' | 'people-culture' (their own sections, in that order)
   invertOnDark: true,          // optional: invert a dark/monochrome logo in dark mode
 }
 ```
