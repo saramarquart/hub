@@ -1,43 +1,65 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { apps, groups, type AppGroup, type AppTile } from '@/lib/apps';
 import styles from './page.module.css';
 
 /**
- * The app grid, grouped by who uses each app (`group` in lib/apps.ts):
- * "For everyone" as large tiles, then the team groups as compact tiles, each a
- * native <details> so phones can collapse them. A per-user "Customize" toggle
- * lets each person hide the apps that aren't relevant to them. The choice is
- * kept in localStorage (this hub is a static site, so it's device-local, no backend).
+ * The app grid. Two tiers, one tile style:
+ *   For everyone — "Our apps" (internal) and "External tools" rows
+ *   Teams        — one row per team group (`group` in lib/apps.ts)
+ * On phones the team rows become native <details>, collapsed by default.
+ *
+ * A per-user "Customize" toggle lets each person hide the apps that aren't
+ * relevant to them. The choice is kept in localStorage (this hub is a static
+ * site, so it's device-local, no backend).
  */
 const HIDE_KEY = 'paf-hub-hidden';
-/** Phones: team groups start collapsed (matches the 560px breakpoint in page.module.css). */
+/** Matches the 560px phone breakpoint in page.module.css. */
 const PHONE_QUERY = '(max-width: 560px)';
 const TEAM_GROUPS = groups.filter((g) => g.key !== 'everyone');
 const EXTERNAL_LABEL = 'opens external site';
 
-/** Small ↗ marker for third-party apps, with a text label for screen readers. */
+/** Small ↗ after an external app's name. Decorative: the link's accessible name carries the meaning. */
 function ExternalMark() {
   return (
-    <span className={styles.extMark} title="Opens external site">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <span className={styles.extMark} title="Opens external site" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
         <path d="M7 17 17 7" />
         <path d="M8 7h9v9" />
       </svg>
-      <span className={styles.srOnly}>({EXTERNAL_LABEL})</span>
     </span>
   );
+}
+
+/** True on phones (after hydration; the prerendered HTML is the desktop layout). */
+function useIsPhone() {
+  const [isPhone, setIsPhone] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia?.(PHONE_QUERY);
+    if (!mq) return;
+    const update = () => setIsPhone(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+  return isPhone;
+}
+
+interface Row {
+  key: string;
+  label: string;
+  apps: AppTile[];
+  /** Team rows collapse on phones; the "For everyone" rows never do. */
+  collapsible: boolean;
 }
 
 export default function AppGrid() {
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [editing, setEditing] = useState(false);
-  // Team groups are open in the prerendered HTML (desktop default) and
-  // collapsed after hydration on phones.
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    Object.fromEntries(TEAM_GROUPS.map((g) => [g.key, true])),
-  );
+  const isPhone = useIsPhone();
+  // Team rows the person has expanded on a phone (all start collapsed).
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     try {
@@ -47,9 +69,6 @@ export default function AppGrid() {
       if (localStorage.getItem('paf-hub-force-customize') === '1') setEditing(true);
     } catch {
       /* ignore malformed storage */
-    }
-    if (window.matchMedia?.(PHONE_QUERY).matches) {
-      setOpenGroups(Object.fromEntries(TEAM_GROUPS.map((g) => [g.key, false])));
     }
   }, []);
 
@@ -67,9 +86,6 @@ export default function AppGrid() {
     });
   }
 
-  // When not editing, a group is only shown if it has at least one visible app.
-  const allHidden = !editing && apps.every((a) => hidden.has(a.name));
-
   function resetHidden() {
     setHidden(new Set());
     try {
@@ -79,47 +95,38 @@ export default function AppGrid() {
     }
   }
 
-  const visibleIn = (key: AppGroup) =>
-    apps.filter((a) => a.group === key && (editing || !hidden.has(a.name)));
+  // When not editing, a row is only shown if it has at least one visible app.
+  const allHidden = !editing && apps.every((a) => hidden.has(a.name));
+  const shown = (a: AppTile) => editing || !hidden.has(a.name);
+  const inGroup = (key: AppGroup) => apps.filter((a) => a.group === key && shown(a));
+
+  const everyone = inGroup('everyone');
+  const everyoneRows: Row[] = [
+    { key: 'our-apps', label: 'Our apps', apps: everyone.filter((a) => a.category === 'internal'), collapsible: false },
+    { key: 'external-tools', label: 'External tools', apps: everyone.filter((a) => a.category === 'external'), collapsible: false },
+  ].filter((r) => r.apps.length);
+  const teamRows: Row[] = TEAM_GROUPS.map((g) => ({
+    key: g.key,
+    label: g.label,
+    apps: inGroup(g.key),
+    collapsible: true,
+  })).filter((r) => r.apps.length);
 
   /** A tile is a link normally, and a show/hide toggle button in customize mode. */
-  function renderTile(app: AppTile, compact: boolean) {
+  function renderTile(app: AppTile) {
     const isHidden = hidden.has(app.name);
     const isExternal = app.category === 'external';
-    const icon = (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        className={`${compact ? styles.compactIcon : styles.icon}${app.invertOnDark ? ` ${styles.iconInvertDark}` : ''}`}
-        src={app.icon}
-        alt=""
-        width={compact ? 28 : 30}
-        height={compact ? 28 : 30}
-      />
-    );
-    const status = editing ? (isHidden ? 'Show' : 'Hide') : 'Open';
-    const statusGlyph = editing ? (isHidden ? '+' : '×') : '→';
-    const inner = compact ? (
-      <>
-        <span className={styles.compactIconWrap} aria-hidden="true">
-          {icon}
-        </span>
-        <span className={styles.compactBody}>
-          <span className={styles.compactName}>
-            {app.name}
-            {isExternal && <ExternalMark />}
-          </span>
-          <span className={styles.compactDesc}>{app.description}</span>
-        </span>
-        {editing && (
-          <span className={styles.compactStatus} aria-hidden="true">
-            {statusGlyph}
-          </span>
-        )}
-      </>
-    ) : (
+    const inner = (
       <>
         <span className={styles.iconBadge} aria-hidden="true">
-          {icon}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className={`${styles.icon}${app.invertOnDark ? ` ${styles.iconInvertDark}` : ''}`}
+            src={app.icon}
+            alt=""
+            width={28}
+            height={28}
+          />
         </span>
         <span className={styles.tileBody}>
           <span className={styles.tileName}>
@@ -128,12 +135,13 @@ export default function AppGrid() {
           </span>
           <span className={styles.tileDesc}>{app.description}</span>
         </span>
-        <span className={styles.open} aria-hidden="true">
-          {status} <span className={styles.arrow}>{statusGlyph}</span>
-        </span>
+        {editing && (
+          <span className={styles.status} aria-hidden="true">
+            {isHidden ? 'Show' : 'Hide'}
+          </span>
+        )}
       </>
     );
-    const base = compact ? styles.compactTile : styles.tile;
     if (editing) {
       return (
         <button
@@ -141,8 +149,8 @@ export default function AppGrid() {
           type="button"
           onClick={() => toggle(app.name)}
           aria-pressed={!isHidden}
-          title={compact ? app.description : undefined}
-          className={`${base} ${styles.tileEditing}${isHidden ? ` ${styles.tileHidden}` : ''}`}
+          aria-label={app.name}
+          className={`${styles.tile} ${styles.tileEditing}${isHidden ? ` ${styles.tileHidden}` : ''}`}
         >
           {inner}
         </button>
@@ -152,9 +160,8 @@ export default function AppGrid() {
       <a
         key={app.name}
         href={app.href}
-        className={base}
+        className={styles.tile}
         rel="noopener"
-        title={compact ? app.description : undefined}
         aria-label={`Open ${app.name} — ${app.description}${isExternal ? ` (${EXTERNAL_LABEL})` : ''}`}
       >
         {inner}
@@ -162,10 +169,58 @@ export default function AppGrid() {
     );
   }
 
-  const everyoneApps = visibleIn('everyone');
-  const teamGroups = TEAM_GROUPS.map((g) => ({ ...g, apps: visibleIn(g.key) })).filter(
-    (g) => g.apps.length,
-  );
+  function renderRow(row: Row) {
+    const tiles = <div className={styles.tiles}>{row.apps.map(renderTile)}</div>;
+    if (row.collapsible && isPhone) {
+      return (
+        <details
+          key={row.key}
+          className={styles.row}
+          // Customize mode shows every row so each app can be toggled.
+          open={editing || expanded.has(row.key)}
+          onToggle={(e) => {
+            if (editing) return;
+            const isOpen = e.currentTarget.open;
+            setExpanded((prev) => {
+              const next = new Set(prev);
+              if (isOpen) next.add(row.key);
+              else next.delete(row.key);
+              return next;
+            });
+          }}
+        >
+          <summary className={styles.rowSummary}>
+            <h3 className={styles.rowLabel}>{row.label}</h3>
+            <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" />
+            </svg>
+          </summary>
+          {tiles}
+        </details>
+      );
+    }
+    return (
+      <div key={row.key} className={styles.row}>
+        <h3 className={styles.rowLabel}>{row.label}</h3>
+        {tiles}
+      </div>
+    );
+  }
+
+  function renderSection(id: string, label: string, rows: Row[]): ReactNode {
+    if (!rows.length) return null;
+    return (
+      <section className={styles.section} aria-labelledby={id}>
+        <div className={styles.sectionHead}>
+          <h2 id={id} className={styles.sectionLabel}>
+            {label}
+          </h2>
+          <hr className={styles.sectionRule} />
+        </div>
+        <div className={styles.rows}>{rows.map(renderRow)}</div>
+      </section>
+    );
+  }
 
   return (
     <>
@@ -213,52 +268,8 @@ export default function AppGrid() {
         </div>
       )}
 
-      {everyoneApps.length > 0 && (
-        <section className={styles.section} aria-labelledby="group-everyone">
-          <div className={styles.sectionHead}>
-            <h2 id="group-everyone" className={styles.sectionLabel}>
-              For everyone
-            </h2>
-            <span className={styles.sectionCount}>{everyoneApps.length}</span>
-            <hr className={styles.sectionRule} />
-          </div>
-          <div className={styles.grid}>{everyoneApps.map((a) => renderTile(a, false))}</div>
-        </section>
-      )}
-
-      {teamGroups.length > 0 && (
-        <section className={styles.section} aria-labelledby="group-teams">
-          <div className={styles.sectionHead}>
-            <h2 id="group-teams" className={styles.sectionLabel}>
-              Teams
-            </h2>
-            <hr className={styles.sectionRule} />
-          </div>
-          <div className={styles.teams}>
-            {teamGroups.map((g) => (
-              <details
-                key={g.key}
-                className={styles.group}
-                // Customize mode shows every group so each app can be toggled.
-                open={editing || openGroups[g.key]}
-                onToggle={(e) => {
-                  const isOpen = e.currentTarget.open;
-                  if (!editing) setOpenGroups((prev) => ({ ...prev, [g.key]: isOpen }));
-                }}
-              >
-                <summary className={styles.groupSummary}>
-                  <h3 className={styles.groupTitle}>{g.label}</h3>
-                  <span className={styles.groupCount}>{g.apps.length}</span>
-                  <svg className={styles.chevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d="m6 9 6 6 6-6" />
-                  </svg>
-                </summary>
-                <div className={styles.compactGrid}>{g.apps.map((a) => renderTile(a, true))}</div>
-              </details>
-            ))}
-          </div>
-        </section>
-      )}
+      {renderSection('group-everyone', 'For everyone', everyoneRows)}
+      {renderSection('group-teams', 'Teams', teamRows)}
     </>
   );
 }

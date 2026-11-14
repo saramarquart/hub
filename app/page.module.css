@@ -128,162 +128,6 @@
   letter-spacing: -0.005em;
 }
 
-/* ---------- Grid ---------- */
-.grid {
-  display: grid;
-  /* Fixed column counts, not auto-fill: the six "For everyone" tiles divide
-     evenly by 3 and by 2, so no row is ever left with a lone tile. 3 across
-     from 720px, 2 across below (phones included). */
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: clamp(12px, 1.2vw, 16px);
-}
-
-@media (min-width: 720px) {
-  .grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-/* ---------- Tile ---------- */
-.tile {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(11px, 1.6vh, 15px);
-  padding: clamp(16px, 2.4vh, 22px) clamp(16px, 1.6vw, 20px)
-    clamp(14px, 2vh, 18px);
-  min-height: clamp(148px, 19vh, 176px);
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: var(--r-xl);
-  box-shadow: var(--shadow-sm);
-  isolation: isolate;
-  transition:
-    transform 0.28s var(--ease),
-    box-shadow 0.28s var(--ease),
-    border-color 0.28s var(--ease),
-    background 0.28s var(--ease);
-  will-change: transform;
-}
-
-/* Hairline top-edge sheen — a lit, glassy resting state without extra weight. */
-.tile::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(180deg, var(--tile-sheen), transparent 42%);
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.9;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.tile:hover,
-.tile:focus-visible {
-  transform: translateY(-5px);
-  border-color: var(--border-strong);
-  background: var(--panel-2);
-  box-shadow: var(--shadow-lg);
-}
-
-.iconBadge {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: clamp(46px, 5.5vh, 54px);
-  height: clamp(46px, 5.5vh, 54px);
-  border-radius: 15px;
-  background: var(--icon-plate);
-  border: 1px solid var(--icon-plate-border);
-  box-shadow: inset 0 1px 0 var(--tile-sheen);
-  transition:
-    transform 0.28s var(--ease),
-    border-color 0.28s var(--ease);
-}
-
-.tile:hover .iconBadge,
-.tile:focus-visible .iconBadge {
-  transform: scale(1.06);
-  border-color: var(--border-strong);
-}
-
-.icon {
-  display: block;
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
-  object-fit: contain;
-}
-
-/* Dark/monochrome logos (e.g. Personio's black mark) vanish on the dark bg —
-   invert them to white in dark mode only. Light mode leaves them untouched. */
-:global(:root:not([data-theme='light'])) .iconInvertDark {
-  filter: invert(1);
-}
-
-.tileBody {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tileName {
-  font-size: clamp(1.08rem, 1.2vw, 1.16rem);
-  font-weight: 650;
-  letter-spacing: -0.015em;
-  color: var(--text);
-  line-height: 1.2;
-}
-
-.tileDesc {
-  font-size: 0.9rem;
-  line-height: 1.45;
-  color: var(--muted);
-  text-wrap: pretty;
-}
-
-.open {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  margin-top: auto;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: -0.005em;
-  color: var(--brand-light);
-  /* Present but quiet at rest; the label sharpens and the arrow advances on
-     hover. Reads as a real affordance instead of an empty tile bottom. */
-  opacity: 0.55;
-  transform: translateY(1px);
-  transition:
-    opacity 0.28s var(--ease),
-    transform 0.28s var(--ease),
-    color 0.28s var(--ease);
-}
-
-.tile:hover .open,
-.tile:focus-visible .open {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.arrow {
-  display: inline-block;
-  transition: transform 0.28s var(--ease);
-}
-
-.tile:hover .arrow,
-.tile:focus-visible .arrow {
-  transform: translateX(4px);
-}
-
 /* ---------- Footer ---------- */
 .footer {
   display: flex;
@@ -322,91 +166,7 @@
   color: var(--faint);
 }
 
-@media (max-width: 560px) {
-  .page {
-    padding: 32px 16px;
-  }
-
-  .title {
-    font-size: clamp(1.5rem, 6.6vw, 1.9rem);
-  }
-
-  .customizeHint {
-    display: none;
-  }
-
-  .grid {
-    gap: 10px;
-  }
-
-  /* Two large tiles across a phone: tighten the padding and type to fit. */
-  .tile {
-    min-height: 0;
-    gap: 10px;
-    padding: 14px 13px 13px;
-  }
-
-  .iconBadge {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-  }
-
-  .tileName {
-    font-size: 0.98rem;
-  }
-
-  .tileDesc {
-    font-size: 0.8rem;
-    line-height: 1.4;
-  }
-
-  /* The whole tile is the link; drop the "Open" row to save height.
-     In customize mode it carries the show/hide status, so keep it there. */
-  .tile:not(.tileEditing) .open {
-    display: none;
-  }
-
-  /* No hover on touch — surface the affordance fully. */
-  .open {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tile,
-  .compactTile,
-  .chevron,
-  .open,
-  .arrow,
-  .iconBadge,
-  .themeToggle,
-  .customizeBtn,
-  .emptyBtn {
-    transition: none;
-  }
-
-  .tile:hover,
-  .tile:focus-visible,
-  .compactTile:hover,
-  .compactTile:focus-visible,
-  .tileEditing:hover,
-  .tileEditing:focus-visible {
-    transform: none;
-  }
-
-  .tile:hover .iconBadge,
-  .tile:focus-visible .iconBadge {
-    transform: none;
-  }
-
-  .customizeHint {
-    animation: none;
-  }
-}
-
-/* ── Grouping + per-user customize (AppGrid) ─────────────────────────────── */
+/* ── Per-user customize (AppGrid) ─────────────────────────────── */
 .customizeBar {
   display: flex;
   align-items: center;
@@ -472,95 +232,6 @@
     transform: translateY(0);
   }
 }
-.section {
-  margin-top: clamp(14px, 2.4vh, 22px);
-}
-.section:first-of-type {
-  margin-top: 2px;
-}
-/* Section header: label + count + a hairline rule that trails to the edge, so
-   the sections read as a calm, intentional hierarchy — not two lists. */
-.sectionHead {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0 0 clamp(10px, 1.4vh, 14px);
-}
-.sectionLabel {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.11em;
-  text-transform: uppercase;
-  color: var(--muted);
-  white-space: nowrap;
-}
-.sectionCount {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  /* --muted, not --faint: --faint is under 4.5:1 on the light background. */
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
-}
-.sectionRule {
-  flex: 1;
-  height: 1px;
-  background: linear-gradient(90deg, var(--border-strong), transparent);
-  border: 0;
-  margin: 0;
-}
-/* A tile rendered as a <button> in customize mode */
-.tileEditing {
-  font: inherit;
-  text-align: left;
-  width: 100%;
-  cursor: pointer;
-  appearance: none;
-}
-/* In edit mode the "Open" affordance becomes the shown/hidden status — keep it
-   fully legible (no hover-reveal) and don't slide the icon around. */
-.tileEditing .open {
-  opacity: 1;
-  transform: none;
-  color: var(--muted);
-}
-.tileEditing:hover,
-.tileEditing:focus-visible {
-  transform: translateY(-2px);
-}
-.tileEditing:hover .iconBadge,
-.tileEditing:focus-visible .iconBadge {
-  transform: none;
-}
-.tileEditing:hover .arrow,
-.tileEditing:focus-visible .arrow {
-  transform: none;
-}
-/* A "shown" tile in edit mode reads as selected — subtle brand ring. */
-.tileEditing:not(.tileHidden) .open {
-  color: var(--brand-light);
-}
-/* Hidden tile: clearly de-emphasised — desaturated, dashed border, quieted. */
-.tileHidden {
-  opacity: 0.5;
-  background: transparent;
-  border-style: dashed;
-  filter: saturate(0.55);
-  box-shadow: none;
-}
-.tileHidden::before {
-  opacity: 0;
-}
-.tileHidden .open {
-  color: var(--faint);
-}
-.tileHidden:hover,
-.tileHidden:focus-visible {
-  opacity: 0.85;
-  background: var(--panel);
-  filter: saturate(0.85);
-}
 
 /* ---------- Empty states (all apps hidden in a group / everywhere) ---------- */
 .emptyAll {
@@ -605,219 +276,354 @@
   background: color-mix(in srgb, var(--brand-light) 18%, transparent);
   border-color: color-mix(in srgb, var(--brand-light) 55%, var(--border));
 }
-
-/* ---------- External-site marker (↗ after the name) ---------- */
-.extMark {
-  display: inline-flex;
+/* ---------- Sections and rows ----------
+   Two tiers, one tile style. A section ("For everyone", "Teams") has an
+   uppercase label and a hairline rule; inside it, each row ("Our apps",
+   "R&D & Procurement", ...) has a small sentence-case label. On wide screens
+   the row label sits in a fixed column to the left, so every row's tiles
+   start on the same vertical line. */
+.section {
+  margin-top: clamp(20px, 3.4vh, 34px);
+}
+.section:first-of-type {
+  margin-top: 2px;
+}
+.sectionHead {
+  display: flex;
   align-items: center;
-  margin-left: 6px;
+  gap: 12px;
+  margin: 0 0 clamp(12px, 1.8vh, 18px);
+}
+.sectionLabel {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
   color: var(--muted);
-  vertical-align: 0.05em;
-}
-.extMark svg {
-  width: 0.72em;
-  height: 0.72em;
-}
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
   white-space: nowrap;
-  border: 0;
 }
-
-/* ---------- Teams: one collapsible row of compact tiles per group ---------- */
-.teams {
+.sectionRule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--border-strong), transparent);
+  border: 0;
+  margin: 0;
+}
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.row {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-width: 0;
 }
-.group {
-  position: relative;
-}
-.groupSummary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 4px;
-  list-style: none;
-  cursor: pointer;
-  border-radius: var(--r-md);
-  user-select: none;
-}
-.groupSummary::-webkit-details-marker {
-  display: none;
-}
-.groupTitle {
+.rowLabel {
   margin: 0;
-  font-size: 0.88rem;
-  font-weight: 650;
+  padding-left: 2px;
+  font-size: 0.84rem;
+  font-weight: 600;
   letter-spacing: -0.005em;
   line-height: 1.3;
-  color: var(--text);
-}
-.groupCount {
-  font-size: 0.72rem;
-  font-weight: 600;
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
 }
-.chevron {
-  width: 14px;
-  height: 14px;
-  color: var(--muted);
-  transform: rotate(-90deg);
-  transition: transform 0.28s var(--ease);
-}
-.group[open] > .groupSummary .chevron {
-  transform: rotate(0deg);
-}
-.groupSummary:hover .groupTitle {
-  color: var(--brand-light);
-}
-.compactGrid {
+
+/* Tiles: 1 across on phones, 2 on tablets, 3 from 900px. Every group has at
+   most 3 apps, so on desktop each row is exactly one line of tiles. */
+.tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin: 6px 0 10px;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
 }
-@media (min-width: 720px) {
-  .compactGrid {
+@media (min-width: 561px) {
+  .tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+}
+@media (min-width: 900px) {
+  .tiles {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
-@media (max-width: 560px) {
-  /* A comfortable (>= 44px) tap target for the collapse toggle. */
-  .groupSummary {
-    min-height: 44px;
-    padding: 8px 4px;
+@media (min-width: 1200px) {
+  .rows {
+    gap: 12px;
   }
-  /* One per row on phones so long names (paf_supplychain) never truncate. */
-  .compactGrid {
-    grid-template-columns: 1fr;
-    gap: 8px;
+  .row {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr);
+    column-gap: 20px;
+    align-items: start;
+  }
+  /* Centre the label on the first line of tiles (tile min-height below). */
+  .rowLabel {
+    display: flex;
+    align-items: center;
+    min-height: 88px;
   }
 }
 
-.compactTile {
+/* ---------- Tile ---------- */
+.tile {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 14px;
   min-width: 0;
-  min-height: 52px;
-  padding: 10px 12px;
+  /* Fits the name plus a two-line description, so every tile is the same height. */
+  min-height: 88px;
+  padding: 14px 16px;
   background: var(--panel);
   border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-xl);
   box-shadow: var(--shadow-sm);
+  isolation: isolate;
   transition:
     transform 0.28s var(--ease),
     box-shadow 0.28s var(--ease),
     border-color 0.28s var(--ease),
     background 0.28s var(--ease);
 }
-.compactTile:hover,
-.compactTile:focus-visible {
+
+/* Hairline top-edge sheen — a lit, glassy resting state without extra weight. */
+.tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, var(--tile-sheen), transparent 42%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tile:hover,
+.tile:focus-visible {
   transform: translateY(-2px);
   border-color: var(--border-strong);
   background: var(--panel-2);
   box-shadow: var(--shadow-md);
 }
-.compactIconWrap {
-  display: inline-flex;
+
+.iconBadge {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--icon-plate);
+  border: 1px solid var(--icon-plate-border);
+  box-shadow: inset 0 1px 0 var(--tile-sheen);
+  transition: border-color 0.28s var(--ease);
 }
-.compactIcon {
+
+.tile:hover .iconBadge,
+.tile:focus-visible .iconBadge {
+  border-color: var(--border-strong);
+}
+
+.icon {
   display: block;
   width: 28px;
   height: 28px;
   border-radius: 7px;
   object-fit: contain;
 }
-.compactBody {
+
+/* Dark/monochrome logos (e.g. Personio's black mark) vanish on the dark bg —
+   invert them to white in dark mode only. Light mode leaves them untouched. */
+:global(:root:not([data-theme='light'])) .iconInvertDark {
+  filter: invert(1);
+}
+
+.tileBody {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
   flex: 1;
 }
-.compactName {
-  font-size: 0.9rem;
+
+.tileName {
+  display: flex;
+  align-items: center;
+  font-size: 0.98rem;
   font-weight: 650;
-  letter-spacing: -0.012em;
+  letter-spacing: -0.015em;
   line-height: 1.25;
   color: var(--text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-/* The description is a secondary line on wide screens only; narrow screens get
-   it via the tile's title tooltip and its accessible name. */
-.compactDesc {
-  display: none;
-  font-size: 0.8rem;
+
+.tileDesc {
+  font-size: 0.82rem;
   line-height: 1.4;
   color: var(--muted);
-  white-space: nowrap;
+  text-wrap: pretty;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
 }
-.compactStatus {
+
+/* ↗ after an external app's name (decorative; the link's label says it). */
+.extMark {
+  display: inline-flex;
+  margin-left: 6px;
+  color: var(--muted);
+}
+.extMark svg {
+  width: 11px;
+  height: 11px;
+}
+
+/* ---------- Phones: team rows collapse (<details>, see AppGrid) ---------- */
+.rowSummary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: -6px 0;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--r-md);
+  user-select: none;
+}
+.rowSummary::-webkit-details-marker {
+  display: none;
+}
+.rowSummary .rowLabel {
+  color: var(--text);
+}
+.chevron {
+  width: 15px;
+  height: 15px;
+  color: var(--muted);
+  transform: rotate(-90deg);
+  transition: transform 0.28s var(--ease);
+}
+details[open] > .rowSummary .chevron {
+  transform: rotate(0deg);
+}
+details[open] > .rowSummary {
+  margin-bottom: 2px;
+}
+
+@media (max-width: 560px) {
+  .page {
+    padding: 32px 16px;
+  }
+
+  .title {
+    font-size: clamp(1.5rem, 6.6vw, 1.9rem);
+  }
+
+  .customizeHint {
+    display: none;
+  }
+
+  .rows {
+    gap: 16px;
+  }
+
+  .tile {
+    min-height: 0;
+    gap: 12px;
+    padding: 12px 14px;
+  }
+
+  .iconBadge {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+  }
+
+  .tileName {
+    font-size: 0.95rem;
+  }
+
+  .tileDesc {
+    font-size: 0.8rem;
+  }
+}
+
+/* ---------- Customize mode: tiles become show/hide toggles ---------- */
+.tileEditing {
+  font: inherit;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  appearance: none;
+}
+.status {
   flex: none;
-  font-size: 0.95rem;
+  align-self: flex-start;
+  font-size: 0.75rem;
   font-weight: 600;
   color: var(--brand-light);
 }
-.tileHidden .compactStatus {
+/* Hidden tile: clearly de-emphasised — desaturated, dashed border, quieted. */
+.tileHidden {
+  opacity: 0.5;
+  background: transparent;
+  border-style: dashed;
+  filter: saturate(0.55);
+  box-shadow: none;
+}
+.tileHidden::before {
+  opacity: 0;
+}
+.tileHidden .status {
   color: var(--muted);
 }
-
-/* Wide screens: the group heading sits to the left of its row of tiles. */
-@media (min-width: 900px) {
-  .teams {
-    gap: 10px;
-  }
-  .group {
-    min-height: 62px;
-    padding-left: 212px;
-  }
-  .groupSummary {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 200px;
-    height: 62px;
-    padding: 0 4px;
-  }
-  .compactGrid {
-    margin: 0;
-  }
-  .compactTile {
-    min-height: 62px;
-  }
-  .compactDesc {
-    display: block;
-  }
-  .compactName {
-    font-size: 0.95rem;
-  }
+.tileHidden:hover,
+.tileHidden:focus-visible {
+  opacity: 0.85;
+  background: var(--panel);
+  filter: saturate(0.85);
 }
 
 /* ---------- Visible keyboard focus ----------
    Tiles and buttons set their own box-shadow, which overrides the global
    :focus-visible ring, so give them an outline that survives both themes. */
 .tile:focus-visible,
-.compactTile:focus-visible,
-.groupSummary:focus-visible,
+.rowSummary:focus-visible,
 .customizeBtn:focus-visible,
 .emptyBtn:focus-visible,
 .themeToggle:focus-visible,
 .footerLink:focus-visible {
   outline: 2px solid var(--accent-2);
   outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .chevron,
+  .iconBadge,
+  .themeToggle,
+  .customizeBtn,
+  .emptyBtn {
+    transition: none;
+  }
+
+  .tile:hover,
+  .tile:focus-visible {
+    transform: none;
+  }
+
+  .customizeHint {
+    animation: none;
+  }
 }

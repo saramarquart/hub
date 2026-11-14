@@ -10,15 +10,15 @@ export interface AppTile {
   href: string;
   /** Path (under /public) to the app's real icon, rendered as an <img>. */
   icon: string;
-  /** Apps Planet A builds/runs vs. third-party SaaS. External apps get an "opens external site" marker. */
+  /** Apps Planet A builds/runs vs. third-party SaaS. Splits "For everyone" into "Our apps" / "External tools"; external apps get a ↗ marker. */
   category: 'internal' | 'external';
-  /** Who uses it: 'everyone' gets a large tile, the team groups get compact tiles. */
+  /** Who uses it: the section and row the app appears in. */
   group: AppGroup;
   /** Invert the icon in dark mode (for dark/monochrome logos that vanish on a dark bg). */
   invertOnDark?: boolean;
 }
 
-/** The sections, in display order. 'everyone' renders as large tiles, the rest under "Teams". */
+/** The groups, in display order. 'everyone' is the first section; the rest are rows under "Teams". */
 export const groups: { key: AppGroup; label: string }[] = [
   { key: 'everyone', label: 'For everyone' },
   { key: 'rnd-procurement', label: 'R&D & Procurement' },
@@ -32,13 +32,13 @@ export const groups: { key: AppGroup; label: string }[] = [
  * within a group is the display order.
  */
 export const apps: AppTile[] = [
-  // For everyone.
+  // For everyone: our own apps first, then external tools (rendered as two rows).
   { name: 'paf_note', description: 'Company wiki, notes, spaces, sprints & OKRs.', href: 'https://note.planet-a-foods.com', icon: '/icons/paf-note.svg', category: 'internal', group: 'everyone' },
+  { name: 'paf_training', description: 'Mandatory employee training & compliance quizzes.', href: 'https://training.planet-a-foods.com', icon: '/icons/paf-training.svg', category: 'internal', group: 'everyone' },
+  { name: 'paf_feedback', description: 'Team feedback & HR workflows.', href: 'https://feedback.planet-a-foods.com', icon: '/icons/paf-feedback.svg', category: 'internal', group: 'everyone' },
   { name: 'Personio', description: 'HR, people & payroll.', href: 'https://planetafoods.app.personio.com/', icon: '/icons/personio.png', category: 'external', group: 'everyone', invertOnDark: true },
   { name: 'Moss', description: 'Company spend & expense management.', href: 'https://getmoss.com/login', icon: '/icons/moss.png', category: 'external', group: 'everyone' },
   { name: 'Ariadne', description: 'Interactive process management system (formerly qWiki).', href: 'https://forplaneta.ariadne.cloud', icon: '/icons/ariadne.png', category: 'external', group: 'everyone' },
-  { name: 'paf_training', description: 'Mandatory employee training & compliance quizzes.', href: 'https://training.planet-a-foods.com', icon: '/icons/paf-training.svg', category: 'internal', group: 'everyone' },
-  { name: 'paf_feedback', description: 'Team feedback & HR workflows.', href: 'https://feedback.planet-a-foods.com', icon: '/icons/paf-feedback.svg', category: 'internal', group: 'everyone' },
   // R&D & Procurement.
   { name: 'QOaroma', description: 'R&D aroma & formulation analytics.', href: 'https://analytics.planet-a-foods.com', icon: '/icons/qoaroma.png', category: 'internal', group: 'rnd-procurement' },
   { name: 'paf_commodity', description: 'Daily cocoa & FX prices + COGS calculator.', href: 'https://commodity.planet-a-foods.com', icon: '/icons/paf-commodity.svg', category: 'internal', group: 'rnd-procurement' },
