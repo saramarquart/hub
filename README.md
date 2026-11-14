@@ -22,12 +22,28 @@ Add, remove, or reorder an app by editing that one array — nothing else change
   description: 'What it does.',
   href: 'https://myapp.planet-a-foods.com',
   icon: '/icons/my-app.svg',   // a file in public/icons/
-  category: 'internal',        // 'internal' | 'external' — splits "Company" into Our apps / External tools; external apps get a ↗
-  group: 'rnd-procurement',    // 'rnd-procurement' | 'operations-quality' | 'sales-finance' (rows under "Teams", shown first)
-                               // | 'company' | 'people-culture' (their own sections, in that order)
+  category: 'internal',        // 'internal' | 'external' — external apps get a ↗
+  group: 'rnd-procurement',    // 'rnd-procurement' | 'operations-quality' | 'sales-finance' (rows under "Teams")
+                               // | 'company' ("Company tools") | 'people-culture' (last, quieter)
+  featured: true,              // optional: the full-width hero tile at the top (paf_note)
   invertOnDark: true,          // optional: invert a dark/monochrome logo in dark mode
+  keywords: ['crm', 'sales'],  // optional: extra words quick search (⌘K) matches
+  highlight: [                 // optional: seasonal badge + "Your apps" entry, checked in the browser
+    { from: '2027-01-10', to: '2027-01-31', note: 'Feedback round open' },
+  ],
 }
 ```
+
+Page order: **Your apps** (pinned, highlighted, then most-used; hidden until
+there is something to show), the **featured** hero, **Teams**, **Company tools**,
+**People & Culture**.
+
+### Per-browser preferences
+
+Hidden apps, pins and usage counts are kept in `localStorage` under
+`paf-hub-hidden`, `paf-hub-pinned` and `paf-hub-usage`. They never leave the
+browser, and the page works normally when storage is blocked. "Customize" →
+"Clear Your apps" removes the pins and counts.
 
 ## Develop
 

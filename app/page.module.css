@@ -170,14 +170,16 @@
 .customizeBar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 10px;
   min-height: 34px;
   margin-bottom: 4px;
 }
-/* A quiet hint that appears while editing, explaining the mode. */
+.barSpacer {
+  flex: 1;
+}
+/* A quiet line under the bar while editing, explaining the mode. */
 .customizeHint {
-  margin-right: auto;
+  margin: -4px 0 4px;
   font-size: 0.84rem;
   font-weight: 450;
   color: var(--muted);
@@ -362,6 +364,13 @@
   /* A row without its own label (People & Culture) keeps the tile column. */
   .rowNoLabel .tiles {
     grid-column: 2;
+  }
+  /* "Your apps" runs the full width, four across. */
+  .rowWide {
+    display: block;
+  }
+  .tilesWide {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
   /* Centre the label on the first line of tiles (tile min-height below). */
   .rowLabel {
@@ -565,10 +574,6 @@ details[open] > .rowSummary {
     font-size: clamp(1.5rem, 6.6vw, 1.9rem);
   }
 
-  .customizeHint {
-    display: none;
-  }
-
   .rows {
     gap: 16px;
   }
@@ -596,11 +601,113 @@ details[open] > .rowSummary {
 
 /* ---------- Customize mode: tiles become show/hide toggles ---------- */
 .tileEditing {
+  cursor: pointer;
+}
+/* The show/hide toggle fills the tile (its ::after covers it), so the whole
+   tile is clickable; the pin button sits above it. */
+.tileToggle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
   font: inherit;
+  color: inherit;
   text-align: left;
-  width: 100%;
+  background: none;
+  border: 0;
   cursor: pointer;
   appearance: none;
+}
+.tileToggle::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+}
+.tileToggle:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+.tileToggle:focus-visible::after {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+  border-radius: var(--r-xl);
+}
+/* Status (top) and pin (bottom) sit in the tile's right edge, so the
+   description keeps almost its full width in customize mode. */
+.tileEditing .tileBody {
+  padding-right: 34px;
+}
+.tileEditing .status {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+}
+.pinBtn {
+  position: absolute;
+  z-index: 2;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition:
+    color 0.28s var(--ease),
+    background 0.28s var(--ease),
+    border-color 0.28s var(--ease);
+}
+.pinBtn svg {
+  width: 14px;
+  height: 14px;
+}
+.pinBtn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.pinBtnOn,
+.pinBtnOn:hover:not(:disabled) {
+  color: var(--brand-light);
+  border-color: color-mix(in srgb, var(--brand-light) 45%, var(--border));
+  background: color-mix(in srgb, var(--brand-light) 12%, transparent);
+}
+.pinBtnOn svg {
+  fill: currentColor;
+}
+.pinBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.clearBtn {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--r-pill);
+  padding: 6px 10px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--border-strong);
+  text-underline-offset: 3px;
+}
+.clearBtn:hover:not(:disabled) {
+  color: var(--text);
+}
+.clearBtn:disabled {
+  cursor: default;
+  opacity: 0.55;
+  text-decoration: none;
 }
 .status {
   flex: none;
@@ -630,10 +737,347 @@ details[open] > .rowSummary {
   filter: saturate(0.85);
 }
 
+/* ---------- Seasonal highlight badge (lib/apps.ts `highlight`) ---------- */
+.badge {
+  display: inline-flex;
+  align-self: flex-start;
+  align-items: center;
+  margin: 2px 0;
+  padding: 1px 8px;
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0;
+  line-height: 1.5;
+  color: var(--brand-light);
+  background: color-mix(in srgb, var(--brand-light) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--brand-light) 30%, transparent);
+  border-radius: var(--r-pill);
+  white-space: nowrap;
+}
+
+/* ---------- Hero: the featured app (paf_note), one size up, full width ---------- */
+.heroWrap {
+  margin-top: clamp(14px, 2.4vh, 22px);
+}
+.customizeBar + .heroWrap,
+.customizeHint + .heroWrap {
+  margin-top: 2px;
+}
+/* When the hero comes first, the section after it keeps the normal gap. */
+.heroWrap + .section {
+  margin-top: clamp(20px, 3.4vh, 34px);
+}
+/* Four "Your apps" tiles: 2 x 2 until the 4-across layout fits (1200px). */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .tilesWide {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.hero {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 24px;
+  background:
+    linear-gradient(120deg, color-mix(in srgb, var(--brand-light) 9%, transparent), transparent 55%),
+    var(--panel);
+  border: 1px solid color-mix(in srgb, var(--brand-light) 22%, var(--border));
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-md);
+  isolation: isolate;
+  transition:
+    transform 0.28s var(--ease),
+    box-shadow 0.28s var(--ease),
+    border-color 0.28s var(--ease);
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(180deg, var(--tile-sheen), transparent 42%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.hero:hover,
+.hero:focus-visible {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--brand-light) 40%, var(--border));
+  box-shadow: var(--shadow-lg);
+}
+.heroBadge {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+}
+.heroIcon {
+  display: block;
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  object-fit: contain;
+}
+.heroName {
+  font-size: 1.22rem;
+  letter-spacing: -0.02em;
+}
+.heroDesc {
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.heroArrow {
+  flex: none;
+  display: inline-flex;
+  color: var(--brand-light);
+  opacity: 0.7;
+  transition:
+    transform 0.28s var(--ease),
+    opacity 0.28s var(--ease);
+}
+.heroArrow svg {
+  width: 20px;
+  height: 20px;
+}
+.hero:hover .heroArrow,
+.hero:focus-visible .heroArrow {
+  opacity: 1;
+  transform: translateX(3px);
+}
+@media (max-width: 560px) {
+  .hero {
+    gap: 14px;
+    padding: 16px;
+  }
+  .heroBadge {
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+  }
+  .heroIcon {
+    width: 32px;
+    height: 32px;
+  }
+  .heroName {
+    font-size: 1.1rem;
+  }
+  .heroDesc {
+    font-size: 0.84rem;
+  }
+}
+
+/* ---------- Quick search (⌘K) ---------- */
+.searchTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: min(280px, 100%);
+  height: 34px;
+  padding: 0 8px 0 12px;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition:
+    color 0.28s var(--ease),
+    border-color 0.28s var(--ease);
+}
+.searchTrigger:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+.searchTrigger > svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.searchTriggerLabel {
+  flex: 1;
+  text-align: left;
+}
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--muted);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+}
+/* Shortcut hints only where there is a keyboard. */
+@media (max-width: 560px), (hover: none) {
+  .kbd {
+    display: none;
+  }
+  .searchTrigger {
+    min-width: 0;
+  }
+}
+.scrollLocked {
+  overflow: hidden;
+}
+.searchDialog {
+  width: min(600px, calc(100vw - 32px));
+  max-width: none;
+  max-height: min(560px, calc(100dvh - 32px));
+  margin: max(12vh, 16px) auto auto;
+  padding: 0;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  overflow: visible;
+}
+.searchDialog::backdrop {
+  background: rgba(9, 9, 15, 0.45);
+  backdrop-filter: blur(3px);
+}
+.searchDialog[open] {
+  animation: fade-in 0.18s var(--ease) both;
+}
+.searchPanel {
+  display: flex;
+  flex-direction: column;
+  max-height: min(560px, calc(100dvh - 32px));
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.searchField {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+}
+.searchField > svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.searchInput {
+  flex: 1;
+  min-width: 0;
+  height: 54px;
+  padding: 0;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+.searchInput:focus-visible {
+  box-shadow: none;
+}
+.searchInput::placeholder {
+  color: var(--muted);
+}
+.searchList {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  overflow-y: auto;
+}
+.searchOption {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--r-lg);
+  cursor: pointer;
+}
+.searchOptionActive {
+  background: color-mix(in srgb, var(--brand-light) 13%, var(--panel-2));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand-light) 35%, transparent);
+}
+.searchIcon {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  object-fit: contain;
+}
+.searchText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.searchName {
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: var(--text);
+}
+.searchExternal {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+.searchDesc {
+  font-size: 0.8rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.searchGroup {
+  flex: none;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+.searchEmpty {
+  margin: 0;
+  padding: 18px 16px 22px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+@media (max-width: 560px) {
+  .searchGroup {
+    display: none;
+  }
+  .searchDialog {
+    margin-top: 16px;
+  }
+}
+
 /* ---------- Visible keyboard focus ----------
    Tiles and buttons set their own box-shadow, which overrides the global
    :focus-visible ring, so give them an outline that survives both themes. */
 .tile:focus-visible,
+.hero:focus-visible,
+.pinBtn:focus-visible,
+.clearBtn:focus-visible,
+.searchTrigger:focus-visible,
 .rowSummary:focus-visible,
 .sectionSummary:focus-visible,
 .customizeBtn:focus-visible,
@@ -646,6 +1090,10 @@ details[open] > .rowSummary {
 
 @media (prefers-reduced-motion: reduce) {
   .tile,
+  .hero,
+  .heroArrow,
+  .pinBtn,
+  .searchTrigger,
   .chevron,
   .iconBadge,
   .themeToggle,
@@ -655,8 +1103,16 @@ details[open] > .rowSummary {
   }
 
   .tile:hover,
-  .tile:focus-visible {
+  .tile:focus-visible,
+  .hero:hover,
+  .hero:focus-visible,
+  .hero:hover .heroArrow,
+  .hero:focus-visible .heroArrow {
     transform: none;
+  }
+
+  .searchDialog[open] {
+    animation: none;
   }
 
   .customizeHint {
