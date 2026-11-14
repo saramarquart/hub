@@ -1,5 +1,13 @@
-/** Who an app is for. Drives the sections on the hub (see `groups` below). */
-export type AppGroup = 'everyone' | 'rnd-procurement' | 'operations-quality' | 'sales-finance';
+/**
+ * Who an app is for. Drives where it appears on the hub:
+ * the team groups first, then Company, then People & Culture (see `groups`).
+ */
+export type AppGroup =
+  | 'rnd-procurement'
+  | 'operations-quality'
+  | 'sales-finance'
+  | 'company'
+  | 'people-culture';
 
 export interface AppTile {
   /** Display name of the app. */
@@ -10,7 +18,7 @@ export interface AppTile {
   href: string;
   /** Path (under /public) to the app's real icon, rendered as an <img>. */
   icon: string;
-  /** Apps Planet A builds/runs vs. third-party SaaS. Splits "For everyone" into "Our apps" / "External tools"; external apps get a ↗ marker. */
+  /** Apps Planet A builds/runs vs. third-party SaaS. Splits "Company" into "Our apps" / "External tools"; external apps get a ↗ marker. */
   category: 'internal' | 'external';
   /** Who uses it: the section and row the app appears in. */
   group: AppGroup;
@@ -18,12 +26,13 @@ export interface AppTile {
   invertOnDark?: boolean;
 }
 
-/** The groups, in display order. 'everyone' is the first section; the rest are rows under "Teams". */
+/** The groups, in display order. The first three are rows under "Teams"; Company and People & Culture are sections of their own. */
 export const groups: { key: AppGroup; label: string }[] = [
-  { key: 'everyone', label: 'For everyone' },
   { key: 'rnd-procurement', label: 'R&D & Procurement' },
   { key: 'operations-quality', label: 'Operations & Quality' },
   { key: 'sales-finance', label: 'Sales & Finance' },
+  { key: 'company', label: 'Company' },
+  { key: 'people-culture', label: 'People & Culture' },
 ];
 
 /**
@@ -32,13 +41,6 @@ export const groups: { key: AppGroup; label: string }[] = [
  * within a group is the display order.
  */
 export const apps: AppTile[] = [
-  // For everyone: our own apps first, then external tools (rendered as two rows).
-  { name: 'paf_note', description: 'Company wiki, notes, spaces, sprints & OKRs.', href: 'https://note.planet-a-foods.com', icon: '/icons/paf-note.svg', category: 'internal', group: 'everyone' },
-  { name: 'paf_training', description: 'Mandatory employee training & compliance quizzes.', href: 'https://training.planet-a-foods.com', icon: '/icons/paf-training.svg', category: 'internal', group: 'everyone' },
-  { name: 'paf_feedback', description: 'Team feedback & HR workflows.', href: 'https://feedback.planet-a-foods.com', icon: '/icons/paf-feedback.svg', category: 'internal', group: 'everyone' },
-  { name: 'Personio', description: 'HR, people & payroll.', href: 'https://planetafoods.app.personio.com/', icon: '/icons/personio.png', category: 'external', group: 'everyone', invertOnDark: true },
-  { name: 'Moss', description: 'Company spend & expense management.', href: 'https://getmoss.com/login', icon: '/icons/moss.png', category: 'external', group: 'everyone' },
-  { name: 'Ariadne', description: 'Interactive process management system (formerly qWiki).', href: 'https://forplaneta.ariadne.cloud', icon: '/icons/ariadne.png', category: 'external', group: 'everyone' },
   // R&D & Procurement.
   { name: 'QOaroma', description: 'R&D aroma & formulation analytics.', href: 'https://analytics.planet-a-foods.com', icon: '/icons/qoaroma.png', category: 'internal', group: 'rnd-procurement' },
   { name: 'paf_commodity', description: 'Daily cocoa & FX prices + COGS calculator.', href: 'https://commodity.planet-a-foods.com', icon: '/icons/paf-commodity.svg', category: 'internal', group: 'rnd-procurement' },
@@ -49,4 +51,12 @@ export const apps: AppTile[] = [
   // Sales & Finance.
   { name: 'paf_force', description: 'Sales & partnerships account intelligence.', href: 'https://sales.planet-a-foods.com', icon: '/icons/paf-sales.svg', category: 'internal', group: 'sales-finance' },
   { name: 'paf_finance', description: 'Finance, P&L & reporting.', href: 'https://finance.planet-a-foods.com', icon: '/icons/paf-finance.svg', category: 'internal', group: 'sales-finance' },
+  // Company: our own apps first, then external tools (rendered as two rows).
+  { name: 'paf_note', description: 'Company wiki, notes, spaces, sprints & OKRs.', href: 'https://note.planet-a-foods.com', icon: '/icons/paf-note.svg', category: 'internal', group: 'company' },
+  { name: 'Personio', description: 'HR, people & payroll.', href: 'https://planetafoods.app.personio.com/', icon: '/icons/personio.png', category: 'external', group: 'company', invertOnDark: true },
+  { name: 'Moss', description: 'Company spend & expense management.', href: 'https://getmoss.com/login', icon: '/icons/moss.png', category: 'external', group: 'company' },
+  { name: 'Ariadne', description: 'Interactive process management system (formerly qWiki).', href: 'https://forplaneta.ariadne.cloud', icon: '/icons/ariadne.png', category: 'external', group: 'company' },
+  // People & Culture (used rarely, so it comes last and is visually quieter).
+  { name: 'paf_feedback', description: 'Team feedback & HR workflows.', href: 'https://feedback.planet-a-foods.com', icon: '/icons/paf-feedback.svg', category: 'internal', group: 'people-culture' },
+  { name: 'paf_training', description: 'Mandatory employee training & compliance quizzes.', href: 'https://training.planet-a-foods.com', icon: '/icons/paf-training.svg', category: 'internal', group: 'people-culture' },
 ];

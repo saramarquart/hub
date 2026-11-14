@@ -26,7 +26,7 @@ npm run typecheck           # tsc --noEmit
 - Load hub.planet-a-foods.com and confirm the app list/change is live.
 
 ## Editing the app list
-- **Single source of truth: `lib/apps.ts`** — the `apps: AppTile[]` array. Add / remove / reorder an app by editing that one array (one entry per app) and nothing else. Icons live under `public/`; see the `AppTile` interface for fields (`name`, `description`, `href`, `icon`, `category`, `group`, `invertOnDark`). `group` decides the section (who uses the app); the section labels and order are the `groups` array in the same file.
+- **Single source of truth: `lib/apps.ts`** — the `apps: AppTile[]` array. Add / remove / reorder an app by editing that one array (one entry per app) and nothing else. Icons live under `public/`; see the `AppTile` interface for fields (`name`, `description`, `href`, `icon`, `category`, `group`, `invertOnDark`). `group` decides where the app appears (who uses it): `rnd-procurement`, `operations-quality` and `sales-finance` are rows under **Teams** (shown first, daily-use apps), then `company` (internal apps, plus an "External tools" row for `category: 'external'`), then `people-culture` (rarely used, last and visually quieter). Labels and order are the `groups` array in the same file.
 
 ## Data / DB
 - None. Fully static; no database, no secrets, no server.

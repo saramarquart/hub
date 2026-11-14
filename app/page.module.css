@@ -277,9 +277,9 @@
   border-color: color-mix(in srgb, var(--brand-light) 55%, var(--border));
 }
 /* ---------- Sections and rows ----------
-   Two tiers, one tile style. A section ("For everyone", "Teams") has an
-   uppercase label and a hairline rule; inside it, each row ("Our apps",
-   "R&D & Procurement", ...) has a small sentence-case label. On wide screens
+   Two tiers, one tile style. A section ("Teams", "Company", "People &
+   Culture") has an uppercase label and a hairline rule; inside it, each row
+   ("R&D & Procurement", "Our apps", ...) has a small sentence-case label. On wide screens
    the row label sits in a fixed column to the left, so every row's tiles
    start on the same vertical line. */
 .section {
@@ -358,6 +358,10 @@
     grid-template-columns: 168px minmax(0, 1fr);
     column-gap: 20px;
     align-items: start;
+  }
+  /* A row without its own label (People & Culture) keeps the tile column. */
+  .rowNoLabel .tiles {
+    grid-column: 2;
   }
   /* Centre the label on the first line of tiles (tile min-height below). */
   .rowLabel {
@@ -478,6 +482,22 @@
   overflow: hidden;
 }
 
+/* People & Culture: rarely used, so the same tile with less weight — no
+   fill, shadow or sheen at rest (text keeps full contrast); hover restores it. */
+.sectionQuiet {
+  margin-top: clamp(28px, 4.6vh, 46px);
+}
+.tileQuiet {
+  background: transparent;
+  box-shadow: none;
+}
+.tileQuiet::before {
+  opacity: 0;
+}
+.tileQuiet .iconBadge {
+  background: transparent;
+}
+
 /* ↗ after an external app's name (decorative; the link's label says it). */
 .extMark {
   display: inline-flex;
@@ -501,8 +521,22 @@
   border-radius: var(--r-md);
   user-select: none;
 }
-.rowSummary::-webkit-details-marker {
+.rowSummary::-webkit-details-marker,
+.sectionSummary::-webkit-details-marker {
   display: none;
+}
+/* People & Culture's heading doubles as its collapse toggle on phones. */
+.sectionSummary {
+  min-height: 44px;
+  margin-top: -8px;
+  margin-bottom: 4px;
+  list-style: none;
+  cursor: pointer;
+  border-radius: var(--r-md);
+  user-select: none;
+}
+details:not([open]) > .sectionSummary {
+  margin-bottom: -8px;
 }
 .rowSummary .rowLabel {
   color: var(--text);
@@ -514,7 +548,8 @@
   transform: rotate(-90deg);
   transition: transform 0.28s var(--ease);
 }
-details[open] > .rowSummary .chevron {
+details[open] > .rowSummary .chevron,
+details[open] > .sectionSummary .chevron {
   transform: rotate(0deg);
 }
 details[open] > .rowSummary {
@@ -600,6 +635,7 @@ details[open] > .rowSummary {
    :focus-visible ring, so give them an outline that survives both themes. */
 .tile:focus-visible,
 .rowSummary:focus-visible,
+.sectionSummary:focus-visible,
 .customizeBtn:focus-visible,
 .emptyBtn:focus-visible,
 .themeToggle:focus-visible,
